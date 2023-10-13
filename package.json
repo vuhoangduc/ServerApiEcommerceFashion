@@ -1,0 +1,25 @@
+{
+  "name": "serverapiecommercefashion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuhoangduc/ServerApiEcommerceFashion.git"
+  },
+  "keywords": [
+    "duchoang"
+  ],
+  "author": "duchoang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vuhoangduc/ServerApiEcommerceFashion/issues"
+  },
+  "homepage": "https://github.com/vuhoangduc/ServerApiEcommerceFashion#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
