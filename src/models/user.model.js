@@ -6,7 +6,6 @@ const COLLECTION_NAME = 'users'
 var userSchema = new Schema({
     user_name: {
         type: String,
-        required: true,
         unique: true,
     },
     email: {
@@ -26,7 +25,9 @@ var userSchema = new Schema({
     },
     role:{
         type:String,
-        enum:['Admin','Shop','User']
+        enum:['Admin','Shop','User'],
+        default: 'User'
+
     },
     information: { type: Schema.Types.ObjectId, ref: 'Information' },
 }, {
