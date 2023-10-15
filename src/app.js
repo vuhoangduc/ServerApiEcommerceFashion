@@ -18,7 +18,8 @@ app.use(compression(),
 // init db
 require('./db/init.mongodb');
 // init routes
-// app.use('', require('./routes/index'));
+app.use('/uploads', express.static('uploads'));
+app.use('', require('./routes/index'));
 app.get('/',(req,res,next)=>{
     res.send('Hello World!!!');
 })
