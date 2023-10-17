@@ -11,7 +11,7 @@ class ShopController{
         }
         new SuccessResponse({
             metadata: await ShopService.updateShop(req.file.path,{
-                shopId:req.shop.shopId,
+                shopId:req.user.userId,
                 ...req.body
             })
         }).send(res);
