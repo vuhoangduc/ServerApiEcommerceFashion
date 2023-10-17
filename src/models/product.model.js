@@ -1,12 +1,12 @@
 
-const {model, Schema} = require('mongoose');
+const {model, Schema,default: mongoose} = require('mongoose');
 const slugify = require('slugify')
 const DOCUMENT_NAME ='Product'
 const COLLECTION_NAME = 'products'
 
 const product_attributes_schema ={
     color:String,
-    price:String,
+    size:[String],
     quantity:Number
 }
 
@@ -38,7 +38,7 @@ productSchema.pre('save',function(next){
     this.product_slug = slugify(this.product_name, {lower:true})
     next()
 })
-module.exports ={
-    product: model(DOCUMENT_NAME,productSchema),
-};
+
+module.exports = mongoose.model(DOCUMENT_NAME, productSchema);
+
 
