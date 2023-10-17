@@ -1,11 +1,6 @@
 const { SuccessResponse } = require("../core/success.response");
 const UserService = require("../services/user.services");
-
-
-
-
 class UserController{
-
     updateUser = async(req,res,next)=>{
         if(!req.file){
             req.file={
@@ -20,5 +15,4 @@ class UserController{
         }).send(res);
     }
 }
-
 module.exports = new UserController;
