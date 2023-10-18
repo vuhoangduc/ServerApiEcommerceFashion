@@ -16,11 +16,11 @@ class ShopController{
             })
         }).send(res);
     }
-    searchProduct = async (req, res, next) => { 
+    searchProduct = async (req, res, next) => {
         new SuccessResponse({
             metadata: await ShopService.searchProduct({
-                shopId: req.shop.shopId,
-                ...req.body
+                shopId: req.user.userId,
+                nameSearch: req.body.nameSearch
             })
         }).send(res);
     }
