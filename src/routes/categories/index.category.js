@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const shopController = require('../../controllers/shop.controller');
+const CategoryController = require('../../controllers/category.controller');
 const { asyneHandler } = require('../../auth/checkAuth');
 const { authentication } = require('../../auth/authUtils');
 const upload = require('../../util/upload_file');
 router.use(authentication);
-router.put('/updateShop', upload.single('avatar'), asyneHandler(shopController.updateShop));
-router.post('/searchProducts', asyneHandler(shopController.searchProduct))
+
+router.post('/createCategory', asyneHandler(CategoryController.createCategory));
+
+router.get('/getAllCategory' , asyneHandler(CategoryController.getAllCategory) )
+
 module.exports = router;

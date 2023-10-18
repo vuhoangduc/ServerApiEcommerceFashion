@@ -1,4 +1,3 @@
-
 const productSchema = require('../models/product.model');
 const { findAllDraftsForShop,
     publishProductByShop,
@@ -45,6 +44,14 @@ static async unpublishProductByShop({ product_shop, product_Id }) {
 static async getAllProductByShop({product_shop}){
     const allProduct = await productSchema.find({product_shop:product_shop});
     if(!allProduct) return {message:'Shop của bạn chưa có bất cứ sản phẩm nào'};
+    return{
+        message:'Lấy tất cả sản phẩm thành công!!',
+        allProduct:allProduct
+    }
+}
+static async getAllProductByUser(){
+    const allProduct = await productSchema.find();
+    if(!allProduct || allProduct.length === 0) return {message:'Không có sản phẩm nào'};
     return{
         message:'Lấy tất cả sản phẩm thành công!!',
         allProduct:allProduct

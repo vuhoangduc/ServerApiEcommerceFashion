@@ -10,7 +10,6 @@ class ProductController {
                 })
         }).send(res);
     }
-
     // Put
     publishProductByShop = async (req,res,next) =>{
         new SuccessResponse({
@@ -38,6 +37,14 @@ class ProductController {
             message: 'Lấy tất cả sản phẩm thành công',
             metadata: await ProductService.getAllProductByShop({
                 product_shop: req.user.userId,
+            })
+        })
+        .send(res)
+    }
+    getAllProductByUser = async (req, res, next) => { 
+        new SuccessResponse({
+            message: 'Lấy tất cả sản phẩm thành công',
+            metadata: await ProductService.getAllProductByUser({
             })
         })
         .send(res)
