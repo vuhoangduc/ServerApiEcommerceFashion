@@ -6,7 +6,7 @@ class ShopController{
     updateShop = async(req,res,next)=>{
         if(!req.file){
             req.file={
-                path: Date.now() + ".jpg"
+                path: 'avata-shop.jpg'
             }
         }
         new SuccessResponse({
