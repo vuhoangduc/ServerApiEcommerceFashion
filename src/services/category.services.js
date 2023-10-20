@@ -2,7 +2,6 @@ const categorySchema = require('../models/category.model');
 
 class CategoryService {
     static async createCategory(thumb, { category_name }) {
-        thumb = '1697547165728-iphone-13-pro-max.png';
         const newCategory = await categorySchema.create(
             { category_name, category_thumb: thumb }
         )

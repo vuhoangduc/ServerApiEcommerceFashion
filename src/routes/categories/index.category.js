@@ -6,7 +6,7 @@ const { authentication } = require('../../auth/authUtils');
 const upload = require('../../util/upload_file');
 router.use(authentication);
 
-router.post('/createCategory', asyneHandler(CategoryController.createCategory));
+router.post('/createCategory', upload.single('thumb') ,asyneHandler(CategoryController.createCategory));
 
 router.get('/getAllCategory' , asyneHandler(CategoryController.getAllCategory) )
 

@@ -50,7 +50,7 @@ static async getAllProductByShop({product_shop}){
     }
 }
 static async getAllProductByUser(){
-    const allProduct = await productSchema.find();
+    const allProduct = await productSchema.find({isPublished: false});
     if(!allProduct || allProduct.length === 0) return {message:'Không có sản phẩm nào'};
     return{
         message:'Lấy tất cả sản phẩm thành công!!',
