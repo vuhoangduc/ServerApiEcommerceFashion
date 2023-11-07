@@ -4,7 +4,7 @@ const ShopService = require("../services/shop.serviece");
 class ShopController{
 
     updateShop = async(req,res,next)=>{
-        if(!req.file){
+        if(req.file){
             req.file={
                 path: Date.now() + req.file.originalname
             }

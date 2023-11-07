@@ -6,7 +6,6 @@ const COLLECTION_NAME = 'users'
 var userSchema = new Schema({
     user_name: {
         type: String,
-        unique: true,
     },
     email: {
         type: String,

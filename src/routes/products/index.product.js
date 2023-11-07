@@ -7,10 +7,12 @@ const upload = require('../../util/upload_file');
 router.use(authentication);
 
 router.post('/createProduct',asyneHandler(ProductController.createProduct));
+router.post('/reviewProduct/:id',asyneHandler(ProductController.reviewProduct))
 //query
 router.get('/getAllProductByShop',asyneHandler(ProductController.getAllProductByShop));
 router.get('/getAllProductByUser',asyneHandler(ProductController.getAllProductByUser));
 // Put
-router.put('/publishById/:id',asyneHandler(ProductController.publishProductByShop))
-router.put('/unpublishById/:id',asyneHandler(ProductController.unpublishProductByShop))
+router.put('/publishById/:id',asyneHandler(ProductController.publishProductByShop));
+router.put('/unpublishById/:id',asyneHandler(ProductController.unpublishProductByShop));
+router.put('/editProduct/:id',asyneHandler(ProductController.editProduct));
 module.exports = router;

@@ -2,26 +2,23 @@ const storeDetailsSchema = require('../models/storeDetails.model');
 const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
 class ShopService {
-
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
         const storeDetails = await storeDetailsSchema.create({
+            _id:shopId,
             nameShop,
             phoneNumberShop,
-            avatar: avatarShop,
+            avatarShop: avatarShop,
             des,
             emailShop,
             address
         })
         if(!storeDetails) return {message:'có lỗi khi update shop!'};
-        const shop = await userSchema.findOneAndUpdate({ _id: shopId }, {
-            $set: { information: storeDetails._id }
-        });
-        if(!shop) return {message:'có lỗi khi update shop!'};
         return{
             message: "cập nhật thành công!!",
-            shop: shop
+            shop: storeDetails
         }
     }
+    
     static searchProduct = async ({shopId, nameSearch}) => {
         try {
         const query = {
@@ -43,6 +40,5 @@ class ShopService {
         return { message: 'Có lỗi khi tìm kiếm sản phẩm trong cửa hàng!' };
     }
     }
-
 }
 module.exports = ShopService;

@@ -41,7 +41,7 @@ const authentication = async (req, res, next) => {
     3 - veriftToken
     4 - check user in bds?
     5 - check keyStore with userId?
-    6 - Ok all 
+    6 - Ok all
     */
 
     const userId = req.headers[HEADER.CLIENT_ID];

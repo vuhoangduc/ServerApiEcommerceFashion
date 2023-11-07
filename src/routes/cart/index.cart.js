@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const cartController = require('../../controllers/cart.controller');
+const { asyneHandler } = require('../../auth/checkAuth');
+const { authentication } = require('../../auth/authUtils');
+router.use(authentication);
+router.get('/getCart',asyneHandler(cartController.getCart));
+router.post('/createCart',asyneHandler(cartController.createCart));
+router.put('/addToCart',asyneHandler(cartController.addToCart));
+module.exports = router;
