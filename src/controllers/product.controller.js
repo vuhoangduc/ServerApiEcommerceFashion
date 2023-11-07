@@ -10,6 +10,15 @@ class ProductController {
                 })
         }).send(res);
     }
+    reviewProduct = async (req,res,next) =>{
+        new SuccessResponse({
+            metadata: await ProductService.reviewProduct({
+                user_id:req.user.userId,
+                product_id:req.params.id,
+                ...req.body
+            })
+        }).send(res);
+    }
     // Put
     publishProductByShop = async (req,res,next) =>{
         new SuccessResponse({
@@ -31,6 +40,16 @@ class ProductController {
         })
         .send(res)
     }
+    editProduct = async (req,res,next) =>{
+        new SuccessResponse({
+            message:'Chỉnh sửa product thành công',
+            metadata: await ProductService.editProduct(null,{
+                product_id:req.params.id,
+                ...req.body
+            })
+        })
+        .send(res)
+    }
     // Query
     getAllProductByShop = async (req,res,next) =>{
         new SuccessResponse({
@@ -41,7 +60,7 @@ class ProductController {
         })
         .send(res)
     }
-    getAllProductByUser = async (req, res, next) => { 
+    getAllProductByUser = async (req, res, next) => {
         new SuccessResponse({
             message: 'Lấy tất cả sản phẩm thành công',
             metadata: await ProductService.getAllProductByUser({
