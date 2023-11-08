@@ -1,4 +1,5 @@
 const productSchema = require('../models/product.model');
+const reviewSchema = require('../models/review.model');
 const { findAllDraftsForShop,
     publishProductByShop,
     findAllPublicForShop,
@@ -32,6 +33,69 @@ class ProductService {
         newProduct:newProduct
     }
 }
+static reviewProduct = async ({ user_id, product_id, rating, comment }) => {
+    try {
+        console.log(user_id);
+        console.log(product_id);
+        const review = await reviewSchema.create({
+            user: user_id,
+            product: product_id,
+            rating: rating,
+            comment: comment
+        });
+
+        const allReview = await reviewSchema.find({});
+        let totalRating = 0;
+
+        allReview.forEach(element => {
+            totalRating += element.rating;
+        });
+        const averageRating = totalRating / allReview.length;
+        console.log(averageRating);
+        const updateRatingProduct = await productSchema.findByIdAndUpdate(
+            { _id: product_id },
+            { $set: { product_ratingAverage: averageRating } }
+        );
+        return {
+            message: 'Đánh giá thành công'
+        };
+    } catch (error) {
+        return {
+            message: 'Có lỗi xảy ra khi đánh giá sản phẩm'
+        };
+    }
+}
+
+    static editProduct = async (thumb,{product_id,product_name,
+        product_description,
+        product_price,
+        category,
+        product_attributes }) =>{
+            thumb = ['1697547165728-iphone-13-pro-max.png',
+            '1697547165728-iphone-13-pro-max.png',
+            '1697547165728-iphone-13-pro-max.png',
+            '1697547165728-iphone-13-pro-max.png'
+            ];
+        const product = await productSchema.findByIdAndUpdate(
+            {_id:product_id},
+            {$set:
+            {
+                product_thumb:thumb,
+                product_name:product_name,
+                product_description:product_description,
+                product_price:product_price,
+                category:category,
+                product_attributes:product_attributes,
+            }}
+        );
+        if(!product) return {message:'Có lỗi sảy ra bạn ko thể update sản phẩm này!!!'};
+        return{
+            message:'Bạn đã cập nhật sản phẩm thành công',
+        }
+    }
+    static deleteProduct = async ({product_id})=>{
+        
+    }
 
 static async publishProductByShop({ product_shop, product_Id }) {
     return await publishProductByShop({ product_shop, product_Id })
@@ -49,6 +113,7 @@ static async getAllProductByShop({product_shop}){
         allProduct:allProduct
     }
 }
+
 static async getAllProductByUser(){
     const allProduct = await productSchema.find({isPublished: false});
     if(!allProduct || allProduct.length === 0) return {message:'Không có sản phẩm nào'};

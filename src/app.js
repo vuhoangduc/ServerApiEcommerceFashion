@@ -3,6 +3,7 @@ const app = express();
 const morgan = require('morgan');
 const { default: helmet } = require('helmet');
 const compression = require('compression');
+const upload = require('./util/upload_file');
 require('dotenv').config();
 
 // init midleware
@@ -19,6 +20,7 @@ app.use(compression(),
 require('./db/init.mongodb');
 // init routes
 app.use('/uploads', express.static('uploads'));
+app.post('/uploadVideo',upload.single('avatar'));
 app.use('', require('./routes/index'));
 app.get('/',(req,res,next)=>{
     res.send('Hello World!!!');
