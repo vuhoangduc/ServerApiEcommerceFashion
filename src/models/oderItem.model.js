@@ -7,7 +7,7 @@ var oderItemSchema = new Schema({
     productId:{type:Schema.Types.ObjectId, ref:'Product'},
     quantity:{type:String},
     idShop:{type:Schema.Types.ObjectId, ref:'Shop'},
-    price:{type:SVGAnimatedNumberList}
+    price:{type:Number}
 
 }, {
     timestamps: true,
