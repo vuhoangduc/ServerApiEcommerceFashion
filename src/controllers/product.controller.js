@@ -68,5 +68,13 @@ class ProductController {
         })
         .send(res)
     }
+    getProduct = async (req,res,next) =>{
+        new SuccessResponse({
+            message:'Lấy thông tin sản phẩm thành công',
+            metadata: await ProductService.getProduct({
+                product_id:req.params.id,
+            })
+        }).send(res)
+    }
 }
 module.exports = new ProductController;

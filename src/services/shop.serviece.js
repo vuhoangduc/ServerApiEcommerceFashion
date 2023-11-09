@@ -40,5 +40,18 @@ class ShopService {
         return { message: 'Có lỗi khi tìm kiếm sản phẩm trong cửa hàng!' };
     }
     }
+
+    static getShop = async ({shopId}) =>{
+        const resShop = {};
+        const shop = await storeDetailsSchema.findById(shopId)
+        .select('-createdAt -updatedAt');
+        const productOfShop = await productSchema.find({product_shop:shop._id})
+        .select('-product_description -product_attributes -createdAt -updatedAt -product_slug');
+        resShop.shop=shop;
+        resShop.products=productOfShop;
+
+        return resShop;
+    }
+    
 }
 module.exports = ShopService;

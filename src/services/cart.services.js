@@ -15,14 +15,14 @@ class CartService {
         const cart = await cartSchema.findOneAndUpdate(
             { userId: userId },
             {
-            $set: { products: products }
+                $push: { products: { $each: products} }
             },
-            { new: true, upsert: true } // Tùy chọn để tạo giỏ hàng nếu nó không tồn tại
+            { new: true, upsert: true }
         );
         if (!cart) {
-            return { message: 'Việc chỉnh sửa giỏ hàng có vấn đề!!!' };
+            return { message: 'Việc thêm sản phẩm vào giỏ hàng có vấn đề!!!' };
         }
-        return { message: 'Chỉnh sửa giỏ hàng thành công!!!' };
+        return { message: 'Thêm sản phẩm vào giỏ hàng thành công!!!' };
     }
 
     static getCart = async ({userId})=>{

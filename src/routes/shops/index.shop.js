@@ -6,5 +6,6 @@ const { authentication } = require('../../auth/authUtils');
 const upload = require('../../util/upload_file');
 router.use(authentication);
 router.put('/updateShop', upload.single('avatar'), asyneHandler(shopController.updateShop));
-router.post('/searchProducts', asyneHandler(shopController.searchProduct))
+router.post('/searchProducts', asyneHandler(shopController.searchProduct));
+router.get('/getShop/:id',asyneHandler(shopController.getShop))
 module.exports = router;

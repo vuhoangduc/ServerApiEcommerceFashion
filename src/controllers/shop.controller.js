@@ -24,6 +24,13 @@ class ShopController{
             })
         }).send(res);
     }
+    getShop = async (req, res, next) =>{
+        new SuccessResponse({
+            metadata: await ShopService.getShop({
+                shopId: req.params.id
+            })
+        }).send(res);
+    }
 }
 
 module.exports = new ShopController;
