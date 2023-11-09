@@ -16,7 +16,7 @@ const productSchema = new Schema({
     product_description:String,
     product_slug:String,
     product_price:{type:Number,required:true},
-    product_quantity:{type:String,required:true},
+    product_quantity:{type:Number,required:true},
     product_shop:{type:Schema.Types.ObjectId, ref:'Shop'},
     category:{type:Schema.Types.ObjectId, ref:'Category'},
     product_attributes:[product_attributes_schema],
