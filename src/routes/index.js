@@ -6,4 +6,5 @@ router.use('/v1/api/shop',require('./shops/index.shop'));
 router.use('/v1/api/product', require('./products/index.product'));
 router.use('/v1/api/category', require('./categories/index.category'));
 router.use('/v1/api/cart', require('./cart/index.cart'));
+router.use('/v1/api/order', require('./order/index.order'));
 module.exports = router;
