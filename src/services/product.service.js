@@ -1,5 +1,6 @@
 const productSchema = require('../models/product.model');
 const reviewSchema = require('../models/review.model');
+const shopSchema = require('../models/storeDetails.model');
 const { findAllDraftsForShop,
     publishProductByShop,
     findAllPublicForShop,
@@ -121,6 +122,31 @@ static async getAllProductByUser(){
         message:'Lấy tất cả sản phẩm thành công!!',
         allProduct:allProduct
     }
+}
+
+static async getProduct({product_id}){
+    console.log(product_id);
+    const resProduct ={};
+    const product = await productSchema.findById(product_id);
+    const shop = await shopSchema.findById(product.product_shop);
+    const reviews = await reviewSchema.find({product:product._id})
+    .populate({
+        path:'user',
+        select:'user_name'
+    });
+    resProduct.product_name = product.product_name;
+    resProduct.product_price = product.product_price;
+    resProduct.product_thumb = product.product_thumb;
+    resProduct.product_description = product.product_description;
+    resProduct.product_price = product.product_price;
+    resProduct.product_quantity = product.product_quantity;
+    resProduct.category = product.category;
+    resProduct.product_attributes = product.product_attributes;
+    resProduct.product_ratingAverage = product.product_ratingAverage;
+    resProduct.shop_name = shop.nameShop;
+    resProduct.shop_avatar = shop.avatarShop;
+    resProduct.reviews = reviews==''?'Chưa có đánh giá nào':reviews;
+    return resProduct;
 }
 
 }

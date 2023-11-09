@@ -34,8 +34,6 @@ const updateUser = async (infoId, user_name, userId) => {
     throw error;
   }
 }
-
-
 module.exports = {
   findByEmail,
   findById,
