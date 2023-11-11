@@ -9,7 +9,7 @@ class OrderService {
         await Promise.all( products.map(async (product) => {
             const findProductById = await productSchema.findOneAndUpdate({ _id: product._id }, {
                 $inc: {
-                    product_quantity: -product.quantity
+                    "product_attributes.quantity": -product.quantity
                 }
             })
             if (findProductById) {
@@ -69,11 +69,13 @@ class OrderService {
         }
     }
     static payOneProduct = async ({ userId, products }) => {
-        const findProduct = await productSchema.findOneAndUpdate({ _id: products._id }, {
+        const findProduct = await productSchema.findOneAndUpdate({ _id: products._id, "product_attributes._id": products.attributes }
+            , {
             $inc: {
-                product_quantity: -products.quantity
+                "product_attributes.$.quantity": -products.quantity
             }
-        })
+            }
+        )
         if (!findProduct) {
             return {
                 message: 'Không tìm thấy sản phẩm'
@@ -96,7 +98,7 @@ class OrderService {
         })
         return {
             message: 'Đặt hàng thành công',
-            order
+            // order
         }
     }
     static changeStatus = async ({order_id, status}) => {
