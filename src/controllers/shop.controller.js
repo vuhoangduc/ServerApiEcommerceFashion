@@ -4,9 +4,10 @@ const ShopService = require("../services/shop.serviece");
 class ShopController{
 
     updateShop = async(req,res,next)=>{
-        if(req.file){
+        console.log(req.body);
+        if(!req.file){
             req.file={
-                path: 'avata-shop.jpg'
+                path: 'Screenshot 2023-10-22 005451.png'
             }
         }
         new SuccessResponse({
@@ -28,6 +29,13 @@ class ShopController{
         new SuccessResponse({
             metadata: await ShopService.getShop({
                 shopId: req.params.id
+            })
+        }).send(res);
+    }
+    getShopForShop = async(req,res,next)=>{
+        new SuccessResponse({
+            metadata: await ShopService.getShopForShop({
+                shopId: req.user.userId
             })
         }).send(res);
     }

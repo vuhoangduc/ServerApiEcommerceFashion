@@ -6,12 +6,12 @@ const findByEmail = async (email) => {
 const findById = async (userId) => {
   return await userSchema.findById({ _id: userId }).select().populate('information').lean();
 }
-const createUser = async(email,password) =>{
-  console.log(email,password);
+const createUser = async(email,password,role) =>{
   return await userSchema.create({
     email,
     password,
     user_name:'',
+    role,
     information:null
   })
 }

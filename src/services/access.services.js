@@ -10,7 +10,7 @@ class AccessService {
         const hodelEmail = await findByEmail(email)
         if (hodelEmail) throw new BadRequestError('Email đã tồn tại!', StatusCode.FORBIDDEN, 'INVALID_EMAIL')
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = await createUser(email,passwordHash);
+        const newUser = await createUser(email,passwordHash,role);
         if(newUser) return{
             message:'Đăng ký tài khoàn thành công!!!',
             status:200,
