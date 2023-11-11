@@ -5,35 +5,41 @@ const { findAllDraftsForShop,
     publishProductByShop,
     findAllPublicForShop,
     unpublishProductByShop
-} = require('../models/repositories/product.repo')
+} = require('../models/repositories/product.repo');
+const { json } = require('express');
 class ProductService {
-    static createProduct = async (thumb,{ product_shop,product_name,
-        product_description,
-        product_price,
-        category,
-        product_attributes }) => {
-        thumb = ['1697547165728-iphone-13-pro-max.png',
-                '1697547165728-iphone-13-pro-max.png',
-                '1697547165728-iphone-13-pro-max.png',
-                '1697547165728-iphone-13-pro-max.png'
-                ];
-    const sumQuanity = await product_attributes.reduce((total,item)=>total+item.quantity,0);
-    const newProduct = await productSchema.create({
-        product_name:product_name,
-        product_thumb:thumb,
-        product_description:product_description,
-        product_price:product_price,
-        category:category,
-        product_shop:product_shop,
-        product_attributes:product_attributes,
-        product_quantity:sumQuanity
-    });
-    if(!newProduct) return{message: 'cố lỗi khi tạo sản phẩm'};
-    return{
-        message:'Tạo sản phẩm thành công',
-        newProduct:newProduct
-    }
-}
+    static createProduct = async (thumbs, { product_shop, product_name, product_description, product_price, category, product_attributes }) => {
+        try {
+            const arrthumb = await Promise.all(thumbs.map(async (thumb) => {
+                return thumb.filename;
+            }));
+            const productAttributesJSON = JSON.parse(product_attributes);
+            console.log(productAttributesJSON);
+            const sumQuanity = productAttributesJSON.reduce((total, item) => total + item.quantity, 0);
+            const newProduct = await productSchema.create({
+                product_name: product_name,
+                product_thumb: arrthumb,
+                product_description: product_description,
+                product_price: product_price,
+                category: category,
+                product_shop: product_shop,
+                product_attributes: productAttributesJSON,
+                product_quantity: sumQuanity
+            });
+            
+            if (!newProduct) {
+                return { message: 'Có lỗi khi tạo sản phẩm' };
+            }
+            
+            return {
+                message: 'Tạo sản phẩm thành công',
+            };
+        } catch (error) {
+            console.error('Lỗi trong quá trình tạo sản phẩm:', error);
+            return { message: 'Có lỗi khi tạo sản phẩm' };
+        }
+    };
+    
 static reviewProduct = async ({ user_id, product_id, rating, comment }) => {
     try {
         console.log(user_id);

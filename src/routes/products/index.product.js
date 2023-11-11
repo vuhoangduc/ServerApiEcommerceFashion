@@ -5,7 +5,7 @@ const { asyneHandler } = require('../../auth/checkAuth');
 const { authentication } = require('../../auth/authUtils');
 const upload = require('../../util/upload_file');
 router.use(authentication);
-router.post('/createProduct',asyneHandler(ProductController.createProduct));
+router.post('/createProduct',upload.array('thumbs'),asyneHandler(ProductController.createProduct));
 router.post('/reviewProduct/:id',asyneHandler(ProductController.reviewProduct))
 //query
 router.get('/getAllProductByShop',asyneHandler(ProductController.getAllProductByShop));

@@ -5,14 +5,6 @@ const productSchema = require('../models/product.model');
 
 class OrderService {
     static payInCart = async ({ userId, product }) => {
-        //Dữ liệu test: sản phẩm trong giỏ hàng
-        // {
-        //     "product": [
-        //         {"_id": "652faf31a546d13fac939d9d", "quantity": 3},
-        //         {"_id": "652faf56a546d13fac939da9", "quantity": 2},
-        //         {"_id": "654b7739872c51970b13ca59", "quantity": 3}
-        //     ]           
-        // }
         let saveCreateOrderItem = [];
         await Promise.all( product.map(async (product) => {
             const findProductById = await productSchema.findOne({ _id: product._id })
@@ -34,15 +26,14 @@ class OrderService {
             const { idShop } = orderItem;
             if (!orders[idShop]) {
                 orders[idShop] = {
-                userId: userId, 
-                totalValue: 0, 
-                status: 'PENDING', 
+                userId: userId,
+                totalValue: 0,
+                status: 'PENDING',
                 orderItem: [],
                 };
-            } 
-
+            }
             orders[idShop].orderItem.push(orderItem._id);
-            orders[idShop].totalValue += orderItem.price; 
+            orders[idShop].totalValue += orderItem.price;
         });
         const createdOrders = [];
         await Promise.all(

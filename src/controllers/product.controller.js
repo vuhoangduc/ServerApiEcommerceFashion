@@ -3,7 +3,7 @@ const { SuccessResponse } = require("../core/success.response");
 class ProductController {
     createProduct = async (req, res, next) => {
         new SuccessResponse({
-            metadata: await ProductService.createProduct(null,
+            metadata: await ProductService.createProduct(req.files,
                 {
                     product_shop:req.user.userId,
                     ...req.body
@@ -52,6 +52,7 @@ class ProductController {
     }
     // Query
     getAllProductByShop = async (req,res,next) =>{
+        console.log(req.headers);
         new SuccessResponse({
             message: 'Lấy tất cả sản phẩm thành công',
             metadata: await ProductService.getAllProductByShop({
