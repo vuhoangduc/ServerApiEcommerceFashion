@@ -1,10 +1,14 @@
 const { SuccessResponse } = require("../core/success.response");
 const ShopService = require("../services/shop.serviece");
-
+const storeDetailsSchema = require('../models/storeDetails.model')
 class ShopController{
-
-    updateShop = async(req,res,next)=>{
-        if(req.file){
+    updateShop = async (req, res, next) => {
+        const {phoneNumberShop,emailShop,nameShop} = req.body
+        const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
+            if (checkShopAliable) {
+                return res.send({message: 'Shop already exists', status: 404})
+            }
+        if(!req.file){
             req.file={
                 path: 'avata-shop.jpg'
             }
