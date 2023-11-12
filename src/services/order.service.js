@@ -6,26 +6,35 @@ const productSchema = require('../models/product.model');
 class OrderService {
     static payInCart = async ({ userId, products }) => {
         let saveCreateOrderItem = [];
-        await Promise.all( products.map(async (product) => {
-            const findProductById = await productSchema.findOneAndUpdate({ _id: product._id }, {
+        await Promise.all(products.map(async (product) => {
+            const findProductById = await productSchema.findOneAndUpdate({ _id: product._id , "product_attributes._id": product.attributes }, {
                 $inc: {
-                    "product_attributes.quantity": -product.quantity
+                    "product_attributes.$.quantity": -product.quantity,
+                    product_quantity: -product.quantity
+                }},{ 
+                    projection: { _id: 1 , product_price: 1,product_shop:1,'product_attributes.$': 1 }
                 }
-            })
-            if (findProductById) {
-                const price = Number(findProductById.product_price) * Number(product.quantity)
-                await orderItemSchema.create({
-                    productId: findProductById._id,
-                    quantity: product.quantity,
-                    idShop: findProductById.product_shop,
-                    price
-                }).then((res) => {
-                    saveCreateOrderItem.push(res)
-                })
+            )
+            if (!findProductById) {
+                return {message: 'Không tìm thấy sản phẩm'}
             }
+            
+            const price = Number(findProductById.product_price) * Number(product.quantity)
+            const attributes = {
+                color: findProductById.product_attributes[0].color,
+                size: product.size,
+                quantity: product.quantity
+            }
+            const orderItem = await orderItemSchema.create({
+                productId: findProductById._id,
+                quantity: product.quantity,
+                idShop: findProductById.product_shop,
+                price,
+                attributes
+            })
+            saveCreateOrderItem.push(orderItem)
         }))
         const orders = {};
-
         saveCreateOrderItem.forEach((orderItem) => {
             const { idShop } = orderItem;
             if (!orders[idShop]) {
@@ -72,8 +81,12 @@ class OrderService {
         const findProduct = await productSchema.findOneAndUpdate({ _id: products._id, "product_attributes._id": products.attributes }
             , {
             $inc: {
-                "product_attributes.$.quantity": -products.quantity
+                    "product_attributes.$.quantity": -products.quantity,
+                    product_quantity: -products.quantity
+                }
             }
+            , { 
+                projection: { _id: 1,product_quantity: 1 , product_price: 1,product_shop:1,'product_attributes.$': 1 }
             }
         )
         if (!findProduct) {
@@ -82,11 +95,17 @@ class OrderService {
             }
         }
         const price = Number(findProduct.product_price) * Number(products.quantity)
+        const attributes = {
+            color: findProduct.product_attributes[0].color,
+            size: products.size,
+            quantity: products.quantity
+        }
         const orderItem = await orderItemSchema.create({
             productId: findProduct._id,
             quantity: products.quantity,
             idShop: findProduct.product_shop,
-            price
+            price,
+            attributes
         })
         if (!orderItem) {
             return {
@@ -98,7 +117,7 @@ class OrderService {
         })
         return {
             message: 'Đặt hàng thành công',
-            // order
+            order
         }
     }
     static changeStatus = async ({order_id, status}) => {
