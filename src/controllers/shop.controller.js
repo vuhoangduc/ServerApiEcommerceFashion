@@ -10,7 +10,7 @@ class ShopController{
             }
         if(!req.file){
             req.file={
-                path: 'avata-shop.jpg'
+                path: 'Screenshot 2023-10-22 005451.png'
             }
         }
         new SuccessResponse({
@@ -32,6 +32,13 @@ class ShopController{
         new SuccessResponse({
             metadata: await ShopService.getShop({
                 shopId: req.params.id
+            })
+        }).send(res);
+    }
+    getShopForShop = async(req,res,next)=>{
+        new SuccessResponse({
+            metadata: await ShopService.getShopForShop({
+                shopId: req.user.userId
             })
         }).send(res);
     }

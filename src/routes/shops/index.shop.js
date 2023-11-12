@@ -8,4 +8,5 @@ router.use(authentication);
 router.put('/updateShop', upload.single('avatar'), asyneHandler(shopController.updateShop));
 router.post('/searchProducts', asyneHandler(shopController.searchProduct));
 router.get('/getShop/:id',asyneHandler(shopController.getShop))
+router.get('/getShopForShop',asyneHandler(shopController.getShopForShop))
 module.exports = router;

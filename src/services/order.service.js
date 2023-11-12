@@ -4,6 +4,7 @@ const orderSchema = require('../models/oder.model')
 const productSchema = require('../models/product.model');
 
 class OrderService {
+
     static payInCart = async ({ userId, products }) => {
         let saveCreateOrderItem = [];
         await Promise.all(products.map(async (product) => {
@@ -39,15 +40,14 @@ class OrderService {
             const { idShop } = orderItem;
             if (!orders[idShop]) {
                 orders[idShop] = {
-                userId: userId, 
-                totalValue: 0, 
-                status: 'PENDING', 
+                userId: userId,
+                totalValue: 0,
+                status: 'PENDING',
                 orderItem: [],
                 };
-            } 
-
+            }
             orders[idShop].orderItem.push(orderItem._id);
-            orders[idShop].totalValue += orderItem.price; 
+            orders[idShop].totalValue += orderItem.price;
         });
         const createdOrders = [];
         await Promise.all(

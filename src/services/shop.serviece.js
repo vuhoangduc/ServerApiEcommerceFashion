@@ -49,12 +49,16 @@ class ShopService {
         const resShop = {};
         const shop = await storeDetailsSchema.findById(shopId)
         .select('-createdAt -updatedAt');
-        const productOfShop = await productSchema.find({product_shop:shop._id})
+        const productOfShop = await productSchema.find({product_shop:shop._id,isPublished: true})
         .select('-product_description -product_attributes -createdAt -updatedAt -product_slug');
         resShop.shop=shop;
         resShop.products=productOfShop;
-
         return resShop;
+    }
+    static getShopForShop = async ({shopId}) =>{
+        const shop = await storeDetailsSchema.findById(shopId)
+        .select('-createdAt -updatedAt');
+        return shop;
     }
     
 }
