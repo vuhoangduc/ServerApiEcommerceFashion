@@ -5,9 +5,14 @@ const COLLECTION_NAME = 'oderItems'
 
 var oderItemSchema = new Schema({
     productId:{type:Schema.Types.ObjectId, ref:'Product'},
-    quantity:{type:String},
+    quantity: { type: Number },
     idShop:{type:Schema.Types.ObjectId, ref:'Shop'},
-    price:{type:Number}
+    price:{type:Number},
+    attributes: {
+        color:String,
+        size: String,
+        quantity:Number
+    }
 
 }, {
     timestamps: true,
