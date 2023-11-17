@@ -4,7 +4,7 @@ const findByEmail = async (email) => {
   return await userSchema.findOne({ email }).populate('information').select().lean()
 }
 const findById = async (userId) => {
-  return await userSchema.findById({ _id: userId }).select().populate('information').lean();
+  return await userSchema.findById({ _id: userId }).select('-password').populate('information').lean();
 }
 const createUser = async(email,password,role) =>{
   return await userSchema.create({
@@ -34,10 +34,33 @@ const updateUser = async (infoId, user_name, userId) => {
     throw error;
   }
 }
+const updateStatus = async (userId) => {
+  try {
+    // Đầu tiên, lấy thông tin người dùng hiện tại
+  const user = await userSchema.findById(userId);
+  if (!user) {
+      // Người dùng không tồn tại
+      throw new Error("User not found");
+  }
+    // Kiểm tra trạng thái hiện tại và thay đổi
+  const newStatus = user.status === "active" ? "inactive" : "active";
+    // Cập nhật trạng thái mới
+  const updatedUser = await userSchema.findByIdAndUpdate(
+      { _id: userId },
+      { $set: { status: newStatus } },
+      { new: true }
+  );
+  return updatedUser;
+  } catch (error) {
+  console.error("Error updating status:", error);
+  throw error;
+  }
+};
 module.exports = {
   findByEmail,
   findById,
   changePassword,
   createUser,
-  updateUser
+  updateUser,
+  updateStatus
 }

@@ -18,6 +18,5 @@ class UserService {
             user:user
         }
     }
-
 }
 module.exports = UserService;

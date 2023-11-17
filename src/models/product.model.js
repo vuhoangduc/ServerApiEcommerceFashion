@@ -17,7 +17,7 @@ const productSchema = new Schema({
     product_slug:String,
     product_price:{type:Number,required:true},
     product_quantity:{type:Number,required:true},
-    product_shop:{type:Schema.Types.ObjectId, ref:'Shop'},
+    product_shop:{type:Schema.Types.ObjectId, ref:'StoreDetail'},
     category:{type:Schema.Types.ObjectId, ref:'Category'},
     product_attributes:[product_attributes_schema],
     product_ratingAverage:{
@@ -28,8 +28,8 @@ const productSchema = new Schema({
         set:(val) =>Math.round(val *10) /10
     },
     product_variation:{type:Array, default:[]},
-    isDraft:{type:Boolean,default:true,index:true,select:false},
-    isPublished:{type:Boolean,default:false,index:true,select:false},
+    isDraft:{type:Boolean,default:true,index:true,select:true},
+    isPublished:{type:Boolean,default:false,index:true,select:true},
 },{
     collection: COLLECTION_NAME,
     timestamps:true,

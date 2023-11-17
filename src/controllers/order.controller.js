@@ -3,7 +3,7 @@ const orderService = require('../services/order.service');
 const socketManager = require('../util/socket_manager');
 class OrderController {
     payInCart = async (req, res, next) => {
-        socketManager.sendNotification('Bạn đã có 1 đơn hàng mới');
+        socketManager.sendNewOrder('Bạn đã có 1 đơn hàng mới ');
         // new SuccessResponse({
         //     metadata: await orderService.payInCart({
         //         userId:req.user.userId,
@@ -30,6 +30,13 @@ class OrderController {
         new SuccessResponse({
             metadata: await orderService.getOrderById({
                 userId:req.user.userId,
+            })
+        }).send(res);
+    }
+    getOrderByIdForShop = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await orderService.getOrderByIdForShop({
+                shopId:req.user.userId,
             })
         }).send(res);
     }

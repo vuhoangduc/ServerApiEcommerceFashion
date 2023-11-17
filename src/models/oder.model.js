@@ -5,6 +5,7 @@ const COLLECTION_NAME = 'oders'
 
 var oderSchema = new Schema({
     userId:{type:Schema.Types.ObjectId, ref:'User'},
+    shopId:{type:Schema.Types.ObjectId, ref:'User'},
     totalValue:{type:Number},
     status:{type:String},
     orderItem:[{type:Schema.Types.ObjectId, ref:'OderItem'}]
