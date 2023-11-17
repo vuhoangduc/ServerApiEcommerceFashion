@@ -4,7 +4,7 @@ const createError = require('http-errors');
 const HEADER = {
     API_KEY: 'x-api-key',
     CLIENT_ID: 'x-xclient-id',//user id
-    AUTHORIZATION: 'ahthorization', //access token
+    AUTHORIZATION: 'authorization', //access token
     REFEREHSTOKEN: 'x-actoken-id'
 }
 

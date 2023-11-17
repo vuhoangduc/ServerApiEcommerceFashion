@@ -2,24 +2,27 @@ const cartSchema = require('../models/cart.model')
 const orderItemSchema = require('../models/oderItem.model')
 const orderSchema = require('../models/oder.model')
 const productSchema = require('../models/product.model');
+const socketManager = require('../util/socket_manager');
+const { findById } = require('../services/userSchema.services');
 
 class OrderService {
 
     static payInCart = async ({ userId, products }) => {
         let saveCreateOrderItem = [];
         await Promise.all(products.map(async (product) => {
-            const findProductById = await productSchema.findOneAndUpdate({ _id: product._id , "product_attributes._id": product.attributes }, {
+            const findProductById = await productSchema.findOneAndUpdate({ _id: product._id, "product_attributes._id": product.attributes }, {
                 $inc: {
                     "product_attributes.$.quantity": -product.quantity,
                     product_quantity: -product.quantity
-                }},{ 
-                    projection: { _id: 1 , product_price: 1,product_shop:1,'product_attributes.$': 1 }
                 }
+            }, {
+                projection: { _id: 1, product_price: 1, product_shop: 1, 'product_attributes.$': 1 }
+            }
             )
             if (!findProductById) {
-                return {message: 'Không tìm thấy sản phẩm'}
+                return { message: 'Không tìm thấy sản phẩm' }
             }
-            
+
             const price = Number(findProductById.product_price) * Number(product.quantity)
             const attributes = {
                 color: findProductById.product_attributes[0].color,
@@ -40,10 +43,10 @@ class OrderService {
             const { idShop } = orderItem;
             if (!orders[idShop]) {
                 orders[idShop] = {
-                userId: userId,
-                totalValue: 0,
-                status: 'PENDING',
-                orderItem: [],
+                    userId: userId,
+                    totalValue: 0,
+                    status: 'PENDING',
+                    orderItem: [],
                 };
             }
             orders[idShop].orderItem.push(orderItem._id);
@@ -72,6 +75,7 @@ class OrderService {
                 },
             }
         );
+        socketManager.sendNewOrder('Bạn đã có 1 đơn hàng mới ');
         return {
             message: 'Đặt hàng thành công',
             createdOrders
@@ -80,13 +84,13 @@ class OrderService {
     static payOneProduct = async ({ userId, products }) => {
         const findProduct = await productSchema.findOneAndUpdate({ _id: products._id, "product_attributes._id": products.attributes }
             , {
-            $inc: {
+                $inc: {
                     "product_attributes.$.quantity": -products.quantity,
                     product_quantity: -products.quantity
                 }
             }
-            , { 
-                projection: { _id: 1,product_quantity: 1 , product_price: 1,product_shop:1,'product_attributes.$': 1 }
+            , {
+                projection: { _id: 1, product_quantity: 1, product_price: 1, product_shop: 1, 'product_attributes.$': 1 }
             }
         )
         if (!findProduct) {
@@ -113,18 +117,18 @@ class OrderService {
             }
         }
         const order = await orderSchema.create({
-            userId,totalValue: orderItem.price,status: 'PENDING',orderItem: orderItem._id
+            userId, totalValue: orderItem.price, status: 'PENDING', orderItem: orderItem._id
         })
         return {
             message: 'Đặt hàng thành công',
             order
         }
     }
-    static changeStatus = async ({order_id, status}) => {
+    static changeStatus = async ({ order_id, status }) => {
         const order = await orderSchema.findOneAndUpdate({ _id: order_id }, {
-            $set: { status: status}
-        },{new: true})
-        if (!order) { 
+            $set: { status: status }
+        }, { new: true })
+        if (!order) {
             return {
                 message: 'Thay đổi trạng thái đơn hàng thất bại'
             }
@@ -134,12 +138,47 @@ class OrderService {
             order
         }
     }
-    static getOrderById = async ({userId}) => {
+    static getOrderById = async ({ userId }) => {
         const order = await orderSchema.find({ userId }).lean()
         if (!order) return { message: 'Không có đơn hàng nào' }
         return {
             message: 'Danh sách đơn hàng',
             order
+        }
+    }
+    static getOrderByIdForShop = async ({ shopId }) => {
+        const orderRes = {
+            user: [],
+        };
+        const order = await orderSchema.find({ shopId: shopId }).populate('orderItem').lean()
+        if (!order) return { message: 'Không có đơn hàng nào' }
+        const userOrder = [];
+        const productOrder = [];
+
+        for (let index = 0; index < order.length; index++) {
+            const element = order[index];
+            const findUserOder = await findById(element.userId);
+            const findProductOder = await productSchema.findById(element.orderItem[0].productId);
+            productOrder.push(findProductOder);
+            userOrder.push(findUserOder);
+            orderRes.user.push(
+            {
+                oderId:element._id,
+                status:element.status,
+                user_name: findUserOder.user_name,
+                address:findUserOder.information.address,
+                phoneNumber:findUserOder.information.phoneNumber,
+                product_name: findProductOder.product_name,
+                product_thumb:findProductOder.product_thumb,
+                product_attributes:element.orderItem[0].attributes,
+                product_price:element.orderItem[0].price,
+                crateDate:element.createdAt
+                
+            }
+        )
+        }
+        return {
+            orderRes
         }
     }
 }

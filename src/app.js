@@ -20,6 +20,8 @@ app.use(compression(),
 require('./db/init.mongodb');
 // init routes
 app.use('/uploads', express.static('uploads'));
+
+
 app.post('/uploadVideo',upload.single('avatar'));
 app.use('', require('./routes/index'));
 app.get('/',(req,res,next)=>{
