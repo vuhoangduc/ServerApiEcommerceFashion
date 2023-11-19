@@ -4,6 +4,7 @@ const { createTokenPair, verifyJWT } = require('../auth/authUtils');
 const bcrypt = require('bcrypt');
 const cryto = require('crypto');
 const KeyTokenService = require('./keyToken.service');
+const keytokenModel = require('../models/keytoken.model');
 class AccessService {
     static signUp = async ({ email, password, role }) => {
         console.log(email, password, role);
@@ -38,6 +39,15 @@ class AccessService {
             userId: hodelUser._id,
             accessToken: tokens.accessToken
         }
+    }
+
+
+    static signOut = async ({userId}) =>{
+        const res = await keytokenModel.findOneAndDelete({user:userId});
+        if(!res){
+            return {message:'Đăng xuất thất bại'}
+        }
+        return {message:'Đăng xuất thành công'};
     }
 
 }

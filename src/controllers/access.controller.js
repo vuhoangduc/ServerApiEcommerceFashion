@@ -22,5 +22,13 @@ class AccessController{
         }).send(res);
     }
 
+    signOut = async (req,res,next) =>{
+        new SuccessResponse({
+            metadata: await AccessService.signOut({
+                userId:req.user.userId
+            })
+        }).send(res);
+    }
+
 }
 module.exports = new AccessController;
