@@ -2,6 +2,8 @@ const categorySchema = require('../models/category.model');
 
 class CategoryService {
     static async createCategory(thumb, { category_name }) {
+        console.log(thumb);
+        console.log(category_name);
         const newCategory = await categorySchema.create(
             { category_name, category_thumb: thumb }
         )

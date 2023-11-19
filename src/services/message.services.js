@@ -18,8 +18,9 @@ class MessageService {
             const newMessage = await messageSchema.create(messageChat);
             foundChat.messagers.push(newMessage._id);
             await foundChat.save();
-            return {message:'nhắn tin thành công'};
+            return newMessage;
     };
+
     static createConversation = async ({userId,shopId}) =>{
         const foundChat = conversationSchema.findOne({
             userId,

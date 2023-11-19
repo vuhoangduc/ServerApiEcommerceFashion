@@ -4,10 +4,12 @@ const { SuccessResponse } = require("../core/success.response");
 class ProductController {
     createCategory = async (req, res, next) => {
         new SuccessResponse({
-            metadata: await CategoryService.createCategory(req.file.path,
+            metadata: await CategoryService.createCategory(
+                req.file.path,
                 {
                     ...req.body
-                })
+                }
+                )
         }).send(res);
     }
     getAllCategory = async (req, res, next) => {

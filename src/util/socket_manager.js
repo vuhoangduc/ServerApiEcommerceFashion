@@ -1,6 +1,7 @@
 let io;
 const cors = require('cors');
-const { updateUser,updateStatus} = require('../services/userSchema.services')
+const { updateUser,updateStatus} = require('../services/userSchema.services');
+const MessageService = require('../services/message.services');
 
 const initSocketManager = (server) => {
     let onlineUsers = [];
@@ -17,10 +18,25 @@ const initSocketManager = (server) => {
 
     io.on('connection', (socket) => {
         console.log(`⚡: ${socket.id} user just connected`);
+        socket.join('global');
 
-        socket.on('chat message',(smg)=>{
-            console.log(`user ${socket.id} đã gửi `+smg);
+        socket.on('chat message', async ({ senderId, message, conversationId }) => {
+            if (typeof senderId !== 'string' || typeof message !== 'string' || typeof conversationId !== 'string') {
+                // Xử lý lỗi hoặc gửi thông báo lỗi cho client
+                return;
+            }
+            const result = await MessageService.sendMessage({senderId:senderId, message:message, conversationId:conversationId});
+
+            io.emit('send message',{
+                _id:result._id,
+                senderId:result.senderId,
+                text:result.text,
+                createdAt:result.createdAt,
+                updatedAt:result.updatedAt
+            });
+
         });
+
         socket.on("new-user-add", async (newUserId) => {
             console.log(onlineUsers);
             console.log('user has id::' + newUserId + ' login ');
@@ -39,6 +55,7 @@ const initSocketManager = (server) => {
                 }
             }
         });
+
         socket.on("disconnect", async () => {
             try {
                 console.log(onlineUsers);
