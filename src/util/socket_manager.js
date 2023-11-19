@@ -8,7 +8,7 @@ const initSocketManager = (server) => {
         cors: {
             origin: [
                 "http://localhost:3000",
-                "http://127.0.0.1:5500"
+                "http://127.0.0.1:5501",
             ],
             methods: ["GET", "POST"],
         },
@@ -17,6 +17,10 @@ const initSocketManager = (server) => {
 
     io.on('connection', (socket) => {
         console.log(`⚡: ${socket.id} user just connected`);
+
+        socket.on('chat message',(smg)=>{
+            console.log(`user ${socket.id} đã gửi `+smg);
+        });
         socket.on("new-user-add", async (newUserId) => {
             console.log(onlineUsers);
             console.log('user has id::' + newUserId + ' login ');

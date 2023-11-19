@@ -5,7 +5,6 @@ const { default: helmet } = require('helmet');
 const compression = require('compression');
 const upload = require('./util/upload_file');
 require('dotenv').config();
-
 // init midleware
 app.use(morgan("dev"));
 app.use(helmet());
@@ -19,9 +18,38 @@ app.use(compression(),
 // init db
 require('./db/init.mongodb');
 // init routes
+const cors = require('cors');
+const corsOptions = {
+    origin: 'http://localhost:3001',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+// app.use(function (req, res, next) {
+//     // Đặt các tiêu đề CORS thích hợp
+//     res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+//     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE,PATCH");
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Credentials", true); // Nếu bạn sử dụng cookie
+//     // Thêm tiêu đề Cross-Origin-Resource-Policy để cho phép tài nguyên từ nguồn khác
+//     res.header("Cross-Origin-Resource-Policy", "cross-origin");
+//     // Tiếp tục xử lý các yêu cầu OPTIONS tiếp theo
+//     if (req.method === 'OPTIONS') {
+//     res.status(200).end();
+//     } else {
+//       // Tiếp tục xử lý các yêu cầu tiếp theo không phải OPTIONS
+//     next();
+//     }
+// });
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
+});
 app.use('/uploads', express.static('uploads'));
-
-
 app.post('/uploadVideo',upload.single('avatar'));
 app.use('', require('./routes/index'));
 app.get('/',(req,res,next)=>{

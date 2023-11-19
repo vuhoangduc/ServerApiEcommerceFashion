@@ -1,11 +1,12 @@
 const { Schema, default: mongoose } = require('mongoose');
 const DOCUMENT_NAME = 'Conversation';
-const COLLECTION_NAME = 'convarsations'
+const COLLECTION_NAME = 'conversations'
 
 
 var conversationSchema = new Schema({
-    members:[{type:Schema.Types.ObjectId,ref:'User'}],
-    messagers:[{type:Schema.Types.ObjectId,ref:'Message'}]
+    userId:{type:Schema.Types.ObjectId,ref:'User'},
+    shopId:{type:Schema.Types.ObjectId,ref:'User'},
+    messagers:[{type:Schema.Types.ObjectId,ref:'Message',default:[]}]
 },{
     timestamps:true,
     collection:COLLECTION_NAME

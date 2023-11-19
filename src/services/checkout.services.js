@@ -248,10 +248,8 @@ class CheckoutService {
         }
         const userOrder = [];
         const productOrder = [];
-
         for (let index = 0; index < orders.length; index++) {
             const element = orders[index];
-            console.log(element.order_userId);
             const findUserOder = await findById(element.order_userId);
             const findProductOder = await productSchema.findById(element.order_products[0].item_products[0].productId);
             productOrder.push(findProductOder);

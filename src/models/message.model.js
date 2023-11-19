@@ -4,9 +4,8 @@ const COLLECTION_NAME = 'messagers'
 
 var messageSchema = new Schema({
     senderId:{type:Schema.Types.ObjectId,ref:'User'},
-    text:String,
-    image:String,
-
+    text:{type:String},
+    image:{type:String,default:''},
 },{
     timestamps:true,
     collection:COLLECTION_NAME

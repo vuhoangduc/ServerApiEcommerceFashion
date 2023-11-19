@@ -1,10 +1,17 @@
 const userSchema = require("../models/user.model")
 const informationUserSchema = require('../models/information.model');
+const storeDetailSchema = require('../models/storeDetails.model');
+
 const findByEmail = async (email) => {
   return await userSchema.findOne({ email }).populate('information').select().lean()
 }
 const findById = async (userId) => {
+  console.log(userId);
   return await userSchema.findById({ _id: userId }).select('-password').populate('information').lean();
+}
+const findByIdForShop = async (shopId) => {
+  console.log(shopId);
+  return await storeDetailSchema.findById({ _id: shopId }).lean();
 }
 const createUser = async(email,password,role) =>{
   return await userSchema.create({
@@ -62,5 +69,6 @@ module.exports = {
   changePassword,
   createUser,
   updateUser,
-  updateStatus
+  updateStatus,
+  findByIdForShop
 }
