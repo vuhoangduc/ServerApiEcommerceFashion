@@ -3,7 +3,8 @@ const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
 class ShopService {
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
-        const findStoreDetail = await storeDetailsSchema.findOne({ _id: shopId })
+        try {
+            const findStoreDetail = await storeDetailsSchema.findOne({ _id: shopId })
         let storeDetails = [];
         if (!findStoreDetail) {
             const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
@@ -35,6 +36,11 @@ class ShopService {
         return{
             message: "cập nhật thành công!!",
             shop: storeDetails
+        }
+        } catch (error) {
+            return {
+                message: 'có lỗi khi update shop!'
+            }
         }
     }
     
