@@ -3,7 +3,13 @@ const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
 class ShopService {
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
-            const storeDetails = await storeDetailsSchema.create({
+        const findStoreDetail = await storeDetailsSchema.findOne({ _id: shopId })
+        let storeDetails = [];
+        if (!findStoreDetail) {
+            const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
+            if (checkShopAliable) return ({message: 'Shop already exists', status: 404})
+            storeDetails = await storeDetailsSchema.create({
+                _id: shopId,
                 nameShop,
                 phoneNumberShop,
                 avatarShop: avatarShop,
@@ -11,10 +17,19 @@ class ShopService {
                 emailShop,
                 address
             })
-            await userSchema.findOneAndUpdate({ _id: shopId }, {
+        } else {
+            storeDetails = await storeDetailsSchema.findByIdAndUpdate({ _id: shopId }, {
                 $set: {
-                    information: storeDetails._id
-                }})
+                    nameShop,
+                    phoneNumberShop,
+                    avatarShop: avatarShop,
+                    des,
+                    emailShop,
+                    address
+                }
+                
+            },{new: true})
+        }
         if (!storeDetails) return { message: 'có lỗi khi update shop!' };
         
         return{
