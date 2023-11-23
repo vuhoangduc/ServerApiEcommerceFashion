@@ -4,11 +4,6 @@ const storeDetailsSchema = require('../models/storeDetails.model')
 class ShopController{
 
     updateShop = async (req, res, next) => {
-        const {phoneNumberShop,emailShop,nameShop} = req.body
-        const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
-            if (checkShopAliable) {
-                return res.send({message: 'Shop already exists', status: 404})
-            }
         if(!req.file){
             req.file={
                 path: 'Screenshot 2023-10-22 005451.png'

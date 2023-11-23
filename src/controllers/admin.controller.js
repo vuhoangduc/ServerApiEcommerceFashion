@@ -40,5 +40,11 @@ class AdminController{
             })
         }).send(res)
     }
+    getStatistical = async (req, res, next) => { 
+        new SuccessResponse({
+            metadata: await AdminService.getStatistical({
+            })
+        }).send(res)
+    }
 }
 module.exports = new AdminController;
