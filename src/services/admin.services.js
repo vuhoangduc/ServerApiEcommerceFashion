@@ -5,6 +5,7 @@ const categorySchema = require('../models/category.model');
 const orderSchema = require('../models/orderV2.model');
 const discountSchema = require('../models/discount.model');
 class AdminService {
+    
     static getAllShopForAdmin = async ({ page, pageSize = 5 }) => {
         // Tính toán giá trị skip dựa trên trang và kích thước trang
         const skip = (page - 1) * pageSize;
@@ -67,7 +68,6 @@ class AdminService {
             .skip(skip)
             .populate({
                 path: 'order_userId',
-                select: '-password'
             })
             .limit(pageSize)
         if (foundOrder.length === 0) {
@@ -81,7 +81,6 @@ class AdminService {
             .find()
             .populate({
                 path: 'discount_shopId',
-                select: '-password'
             })
             .skip(skip)
             .limit(pageSize)

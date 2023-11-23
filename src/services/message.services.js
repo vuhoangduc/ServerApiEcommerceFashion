@@ -73,6 +73,9 @@ class MessageService {
         // })
         return foundChat;
     }
+    static updateConversation = async({conversationId,isRead}) =>{
+const foundChat = await conversationSchema.findOne({ _id: conversationId })
+    }
     // static getMessager = async (data) => {
     //     const messager = await conversationSchema.
     //         findById({ _id: data }).

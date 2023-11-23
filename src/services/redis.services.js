@@ -1,78 +1,90 @@
-const { resolve } = require('path');
-const redis = require('redis');
-const util = require("util");
-const { reservationInventory } = require('../models/repositories/inventory.repo');
-const redisClient = redis.createClient();
+// const { reservationInventory } = require('../models/repositories/inventory.repo');
+// const { promisify } = require('util');
+// const redisClient = require('../db/init.redis');
+// // var that = model.exports = {
 
-// Đảm bảo phương thức tồn tại và làm đúng cú pháp
-if (typeof redisClient.expire !== 'function') {
-    throw new Error('expire method not found in redisClient');
-}
-const expireAsync = (key, seconds) => {
-    return new Promise((resolve, reject) => {
-        redisClient.expire(key, seconds, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-};
-const setnxAsync = (key, seconds) => {
-    return new Promise((resolve, reject) => {
-        redisClient.setnx(key, seconds, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-};
+// //     setPromise: async({
+// //         key,
+// //         value,
+// //     })=>{
+// //         try{
+// //             return new Promise((isOKE,isERROR)=>{
+// //                 client.set(key,value,(err,rs)=>{
+// //                     return !err ? isOKE(rs):isERROR(err);
+// //                 })
+// //             })
+// //         }catch (error){
+// //         }
+// //     },
+// //     getPromise: async(key) =>{
+// //         try{
+// //             return new Promise((isOKE,isERROR)=>{
+// //                 client.get(key,(err,rs)=>{
+// //                     return !err ? isOKE(rs):isERROR(err);
+// //                 })
+// //             })
+// //         }catch (error){
+
+// //         }
+// //     }
+// // }
+// // const redis = require('redis');
+// // const { set, model } = require('mongoose');
+// // const client = redis.createClient({
+// //     host: '127.0.0.1', // your Redis server host
+// //     port: 6379,         // your Redis server port
+// //     // password: 'your_password', // uncomment and set if you have a password
+// // });
 
 
-const acquirelock = async (productId, quantity, cartId) => {
-    const key = `lock_v2023_${productId}`;
-    const retryTimes = 10;
-    const expireTime = 3; // Đổi expireTime thành giây
+// // const setExAsync = promisify(client.setEx).bind(client);
+// // const pexpireAsync = promisify(client.pExpire).bind(client);
+// // const delAsync = promisify(client.del).bind(client);
 
-    for (let i = 0; i < retryTimes; i++) {
-        const result = await setnxAsync(key, expireTime);
-        console.log(`result:::`, result);
+// // const acquirelock = async (productId, quantity, cartId) => {
+// //     const key = `lock_v2023_${productId}`;
+// //     const retryTimes = 10;
+// //     const expireTime = 3000;
+// //     for (let i = 0; i < retryTimes; i++) {
+// //         try {
+// //             const result = await setExAsync(key, expireTime, '1');
+// //             console.log('result:::' + result);
+// //             if (result === 'OK') {
+// //                 const isReservation = await reservationInventory({
+// //                     productId,
+// //                     quantity,
+// //                     cartId
+// //                 });
+// //                 // Kiểm tra xem có thuộc tính modifiedCount không
+// //                 if (isReservation && isReservation.modifiedCount) {
+// //                     await pexpireAsync(key, expireTime);
+// //                     return key;
+// //                 }
+// //                 return null;
+// //             } else {
+// //                 await new Promise((resolve) => setTimeout(resolve, 50));
+// //             }
+// //         } catch (error) {
+// //             console.error('Error acquiring lock:', error);
+// //             // Xử lý lỗi và thử lại nếu cần thiết
+// //         }
+// //     }
+// // };
 
-        if (result === 1) {
-            const isReservation = await reservationInventory({
-                productId, quantity, cartId
-            });
+// // const releaselock = async keyLock => {
+// //     try {
+// //         // Kiểm tra xem keyLock có tồn tại không trước khi xóa
+// //         const exists = await setExAsync(keyLock, 0, '0');
+// //         if (exists === 'OK') {
+// //             await delAsync(keyLock);
+// //         }
+// //     } catch (error) {
+// //         console.error('Error releasing lock:', error);
+// //         // Xử lý lỗi nếu cần thiết
+// //     }
+// // };
 
-            if (isReservation.modifiedCount) {
-                await expireAsync(key, expireTime);
-                return key;
-            }
-            return null;
-        } else {
-            await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-    }
-}
-
-const releaselock = async keyLock => {
-    const delAsyncKey = (key, seconds) => {
-        return new Promise((resolve, reject) => {
-            redisClient.del(key, seconds, (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-    }
-    return await delAsyncKey(keyLock);
-}
-
-module.exports = {
-    acquirelock,
-    releaselock
-}
+// // module.exports = {
+// //     acquirelock,
+// //     releaselock
+// // };

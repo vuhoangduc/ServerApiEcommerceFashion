@@ -4,6 +4,7 @@ const productSchema = require('../models/product.model');
 class ShopService {
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
             const storeDetails = await storeDetailsSchema.create({
+                _id:shopId,
                 nameShop,
                 phoneNumberShop,
                 avatarShop: avatarShop,
@@ -11,12 +12,10 @@ class ShopService {
                 emailShop,
                 address
             })
-            await userSchema.findOneAndUpdate({ _id: shopId }, {
-                $set: {
-                    information: storeDetails._id
-                }})
+            // console.log(shopId);
+            // storeDetails._id=shopId;
+            // storeDetails.save();
         if (!storeDetails) return { message: 'có lỗi khi update shop!' };
-        
         return{
             message: "cập nhật thành công!!",
             shop: storeDetails

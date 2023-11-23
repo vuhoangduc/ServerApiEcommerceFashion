@@ -6,10 +6,23 @@ const COLLECTION_NAME = 'products'
 
 const product_attributes_schema ={
     color:String,
-    size:[String],
-    quantity:Number
+    options:[
+        {
+            size:{type:String},
+            quantity:{type:Number},
+        }
+    ],
 }
-
+// const product_attributes_schema ={
+//     color:String,
+//     quantity:{type:Number,default:0},
+//     options:[
+//         {
+//             size:{type:String},
+//             options_quantity:{type:Number},
+//         }
+//     ],
+// }
 const productSchema = new Schema({
     product_name:{type:String, required:true},
     product_thumb:[{type:String}],

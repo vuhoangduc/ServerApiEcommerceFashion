@@ -18,23 +18,27 @@ const initSocketManager = (server) => {
 
     io.on('connection', (socket) => {
         console.log(`⚡: ${socket.id} user just connected`);
-        socket.join('global');
-
-        socket.on('chat message', async ({ senderId, message, conversationId }) => {
-            if (typeof senderId !== 'string' || typeof message !== 'string' || typeof conversationId !== 'string') {
-                // Xử lý lỗi hoặc gửi thông báo lỗi cho client
-                return;
-            }
-            const result = await MessageService.sendMessage({senderId:senderId, message:message, conversationId:conversationId});
-
-            io.emit('send message',{
-                _id:result._id,
-                senderId:result.senderId,
-                text:result.text,
-                createdAt:result.createdAt,
-                updatedAt:result.updatedAt
+        socket.on('joinRoom', (roomName) => {
+            socket.join(roomName);
+            console.log(`User ${socket.id} joined room: ${roomName}`);
+            socket.on('chat message', async ({ senderId, message, conversationId }) => {
+                if (typeof senderId !== 'string' || typeof message !== 'string' || typeof conversationId !== 'string') {
+                    // Xử lý lỗi hoặc gửi thông báo lỗi cho client
+                    return;
+                }
+                const result = await MessageService.sendMessage({senderId:senderId, message:message, conversationId:conversationId});
+                io.to(roomName).emit('send message',{
+                    _id:result._id,
+                    senderId:result.senderId,
+                    text:result.text,
+                    createdAt:result.createdAt,
+                    updatedAt:result.updatedAt
+                });
             });
-
+            socket.on('leaveRoom', (roomName) => {
+                socket.leave(roomName);
+                console.log(`User ${socket.id} left room: ${roomName}`);
+            });
         });
 
         socket.on("new-user-add", async (newUserId) => {

@@ -35,7 +35,6 @@ class ProductService {
                 product_attributes: productAttributesJSON,
                 product_quantity: sumQuanity
             });
-            
             if (!newProduct) {
                 return { message: 'Có lỗi khi tạo sản phẩm' };
             }
@@ -47,19 +46,17 @@ class ProductService {
                     stock:newProduct.product_quantity,
                 })
                 // push noti system
-                pushNotiToSystem({
-                    type:'shop-001',
-                    receivedId:1,
-                    senderId:newProduct.product_shop,
-                    options:{
-                        product_name:product_name,
-                        shop_name:product_shop
-                    }
-                }).then(rs => console.log(rs))
-                .catch(console.error)
-                
+                // pushNotiToSystem({
+                //     type:'shop-001',
+                //     receivedId:1,
+                //     senderId:newProduct.product_shop,
+                //     options:{
+                //         product_name:product_name,
+                //         shop_name:product_shop
+                //     }
+                // }).then(rs => console.log(rs))
+                // .catch(console.error)
             }
-
             return {
                 message: 'Tạo sản phẩm thành công',
             };
@@ -145,10 +142,10 @@ static async getAllProductByShop({ product_shop, query }) {
     let allProducts = [];
     switch (query) {
         case 'all':
-            allProducts = await productSchema.find({ product_shop: product_shop });
+            allProducts = await productSchema.find({ product_shop: product_shop,isDraft:false });
             break;
         case 'con_hang':
-            allProducts = await productSchema.find({ product_shop: product_shop, product_quantity: { $gt: 0 } });
+            allProducts = await productSchema.find({ product_shop: product_shop,isDraft:false ,product_quantity: { $gt: 0 } });
             break;
         case 'het_hang':
             allProducts = await productSchema.find({ product_shop: product_shop, product_quantity:0});
