@@ -4,46 +4,59 @@ const productSchema = require('../models/product.model');
 class ShopService {
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
         try {
-            const findStoreDetail = await storeDetailsSchema.findOne({ _id: shopId })
-        let storeDetails = [];
-        if (!findStoreDetail) {
-            const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
-            if (checkShopAliable) return ({message: 'Shop already exists', status: 404})
-            storeDetails = await storeDetailsSchema.create({
-                _id: shopId,
-            const storeDetails = await storeDetailsSchema.create({
-                _id:shopId,
-                nameShop,
-                phoneNumberShop,
-                avatarShop: avatarShop,
-                des,
-                emailShop,
-                address
-            })
-        } else {
-            storeDetails = await storeDetailsSchema.findByIdAndUpdate({ _id: shopId }, {
-                $set: {
+            const findStoreDetail = await storeDetailsSchema.findOne({ _id: shopId });
+            let storeDetails;
+    
+            if (!findStoreDetail) {
+                const checkShopAvailable = await storeDetailsSchema.findOne({
+                    $or: [{ phoneNumberShop }, { emailShop }, { nameShop }]
+                });
+    
+                if (checkShopAvailable) {
+                    return { message: 'Shop already exists', status: 404 };
+                }
+    
+                storeDetails = await storeDetailsSchema.create({
+                    _id: shopId,
                     nameShop,
                     phoneNumberShop,
                     avatarShop: avatarShop,
                     des,
                     emailShop,
                     address
-                }
-                
-            },{new: true})
-        }
-        if (!storeDetails) return { message: 'có lỗi khi update shop!' };
-        return{
-            message: "cập nhật thành công!!",
-            shop: storeDetails
-        }
+                });
+            } else {
+                storeDetails = await storeDetailsSchema.findByIdAndUpdate(
+                    { _id: shopId },
+                    {
+                        $set: {
+                            nameShop,
+                            phoneNumberShop,
+                            avatarShop: avatarShop,
+                            des,
+                            emailShop,
+                            address
+                        }
+                    },
+                    { new: true }
+                );
+            }
+    
+            if (!storeDetails) {
+                return { message: 'Có lỗi khi update shop!' };
+            }
+    
+            return {
+                message: 'Cập nhật thành công!!',
+                shop: storeDetails
+            };
         } catch (error) {
             return {
-                message: 'có lỗi khi update shop!'
-            }
+                message: 'Có lỗi khi update shop!'
+            };
         }
     }
+    
     
     static searchProduct = async ({shopId, nameSearch}) => {
         try {
