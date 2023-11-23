@@ -53,7 +53,6 @@ class AdminService {
             .find()
             .populate({
                 path: 'order_userId',
-                select: '-password'
             })
         if (foundOrder.length === 0) {
             return { message: 'Chưa có đơn hàng nào' };
@@ -65,7 +64,6 @@ class AdminService {
             .find()
             .populate({
                 path: 'discount_shopId',
-                select: '-password'
             })
         if (foundDiscount.length === 0) {
             return { message: 'Chưa có mã giảm giá nào' };

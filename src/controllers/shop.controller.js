@@ -2,6 +2,7 @@ const { SuccessResponse } = require("../core/success.response");
 const ShopService = require("../services/shop.serviece");
 const storeDetailsSchema = require('../models/storeDetails.model')
 class ShopController{
+
     updateShop = async (req, res, next) => {
         const {phoneNumberShop,emailShop,nameShop} = req.body
         const checkShopAliable = await storeDetailsSchema.findOne({$or: [{phoneNumberShop}, {emailShop}, {nameShop}]})
@@ -20,6 +21,9 @@ class ShopController{
             })
         }).send(res);
     }
+
+
+
     searchProduct = async (req, res, next) => {
         new SuccessResponse({
             metadata: await ShopService.searchProduct({
