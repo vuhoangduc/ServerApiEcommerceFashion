@@ -10,4 +10,5 @@ router.get('/product', asyneHandler(adminController.getAllProductForAdmin));
 router.get('/category', asyneHandler(adminController.getAllCategoryForAdmin));
 router.get('/order', asyneHandler(adminController.getAllOrderForAdmin));
 router.get('/discount', asyneHandler(adminController.getAllDiscountForAdmin));
+router.get('/statistical', asyneHandler(adminController.getStatistical));
 module.exports = router;

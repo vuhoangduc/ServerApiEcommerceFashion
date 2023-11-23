@@ -72,6 +72,120 @@ class AdminService {
         }
         return foundDiscount;
     }
+    static getStatistical = async () => {
+        const productByYear = await productSchema.aggregate([
+            {
+                $group: {
+                    _id: { $year: { $toDate: "$createdAt" } }, // Trích xuất năm từ trường createdAt
+                    productCount: { $sum: 1 },
+                }
+            },
+            {
+                $sort: {
+                    _id: 1,
+                },
+            },
+        ]);
+        const countProducts = await productSchema.find().count()
+        const userByYear = await userSchema.aggregate([
+            {
+                $match: {
+                    role: 'User',
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: { $toDate: "$createdAt" } }, // Trích xuất năm từ trường createdAt
+                    userCount: { $sum: 1 },
+                }
+            },
+            {
+                $sort: {
+                    _id: 1,
+                },
+            }
+        ])
+        const countUsers = await userSchema.find({ role: 'User' }).count()
+        const shopByYear = await userSchema.aggregate([
+            {
+                $match: {
+                    role: 'Shop',
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: { $toDate: "$createdAt" } }, // Trích xuất năm từ trường createdAt
+                    shopCount: { $sum: 1 },
+                }
+            },
+            {
+                $sort: {
+                    _id: 1,
+                },
+            }
+        ])
+        const countShops = await userSchema.find({ role: 'Shop' }).count()
+        const orderByYear = await orderSchema.aggregate([
+            {
+                $group: {
+                    _id: { $year: { $toDate: "$createdAt" } }, // Trích xuất năm từ trường createdAt
+                    ordertCount: { $sum: 1 },
+                }
+            },
+            {
+                $sort: {
+                    _id: 1,
+                },
+            },
+        ]);
+        const countOrders = await orderSchema.find().count()
+        const topProductSold = await orderSchema.aggregate([
+            { $unwind: "$order_products" },
+            { $unwind: "$order_products.item_products" },
+            {
+                $group: {
+                    _id: "$order_products.item_products.productId",
+                    totalSoldQuantity: { $sum: "$order_products.item_products.quantity" },
+                },
+            },
+            { $sort: { totalSoldQuantity: -1 } }, { $limit: 5 },
+            {
+                $project: {
+                    _id: { $toObjectId: "$_id" },
+                    totalSoldQuantity: 1,
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",  
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productInfo",
+                },
+            },
+        ])
+        const countCategory = await categorySchema.findOne().count();
+        const mergedData = {};
+
+// Gộp dữ liệu theo năm từ các truy vấn
+[productByYear, userByYear, shopByYear, orderByYear].forEach(data => {
+    data.forEach(item => {
+
+        // Nếu năm chưa tồn tại trong đối tượng gộp, tạo mới
+        if (!mergedData[item._id]) {
+            mergedData[item._id] = {};
+        }
+
+        // Gộp thông tin từ mảng hiện tại vào đối tượng gộp
+        Object.assign(mergedData[item._id], item);
+    });
+});
+
+        return {
+            countUsers,countShops,countProducts,countOrders,countCategory,
+            mergedData,topProductSold
+        };
+    }
 }
 
 
