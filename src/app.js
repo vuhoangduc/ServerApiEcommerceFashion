@@ -16,18 +16,19 @@ app.use(
 app.use(compression(),
     express.json());
 // init db
+
 require('./db/init.mongodb');
 // init routes
 const cors = require('cors');
-// const corsOptions = {
-//     origin: 'http://localhost:3000',
-//     origin: 'http://127.0.0.1:5501',
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     credentials: true,
-//     optionsSuccessStatus: 204,
-// };
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    origin: 'http://127.0.0.1:5501',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
 // app.use(function (req, res, next) {
 //     // Đặt các tiêu đề CORS thích hợp
 //     res.header("Access-Control-Allow-Origin", "http://localhost:3001");

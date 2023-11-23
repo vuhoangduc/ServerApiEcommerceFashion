@@ -11,6 +11,8 @@ class ShopService {
             if (checkShopAliable) return ({message: 'Shop already exists', status: 404})
             storeDetails = await storeDetailsSchema.create({
                 _id: shopId,
+            const storeDetails = await storeDetailsSchema.create({
+                _id:shopId,
                 nameShop,
                 phoneNumberShop,
                 avatarShop: avatarShop,
@@ -32,7 +34,6 @@ class ShopService {
             },{new: true})
         }
         if (!storeDetails) return { message: 'có lỗi khi update shop!' };
-        
         return{
             message: "cập nhật thành công!!",
             shop: storeDetails

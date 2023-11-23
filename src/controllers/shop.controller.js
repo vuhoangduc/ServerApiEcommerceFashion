@@ -2,6 +2,7 @@ const { SuccessResponse } = require("../core/success.response");
 const ShopService = require("../services/shop.serviece");
 const storeDetailsSchema = require('../models/storeDetails.model')
 class ShopController{
+
     updateShop = async (req, res, next) => {
         if(!req.file){
             req.file={
@@ -15,6 +16,9 @@ class ShopController{
             })
         }).send(res);
     }
+
+
+
     searchProduct = async (req, res, next) => {
         new SuccessResponse({
             metadata: await ShopService.searchProduct({

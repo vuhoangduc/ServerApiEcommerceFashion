@@ -11,6 +11,7 @@ const { acquirelock, releaselock } = require('./redis.services');
 const orderV2Schema = require('../models/orderV2.model');
 const productSchema = require('../models/product.model');
 const cartv2Schema = require('../models/cartV2.model');
+const inventorySchema = require('../models/inventory.model');
 const storeDetailSchema = require('../models/storeDetails.model')
 const { findById } = require('../services/userSchema.services');
 
@@ -128,18 +129,18 @@ class CheckoutService {
         // check lai mot lan nua xem vuot ton kho hay ko?
         const products = shop_order_ids_new.flatMap(order => order.item_products);
         const acquireProduct = [];
-        // for (let i = 0; i < products.length; i++) {
-        //     const {productId,quantity} = products[i];
-        //     const keyLock = await acquirelock(productId,quantity,cartId);
-        //     acquireProduct.push(keyLock ? true:false);
-        //     if(keyLock){
-        //         await releaselock(keyLock)
-        //     }
-        // }
+        for (let i = 0; i < products.length; i++) {
+            const {productId,quantity} = products[i];
+            const keyLock = await acquirelock(productId,quantity,cartId);
+            acquireProduct.push(keyLock ? true:false);
+            if(keyLock){
+                await releaselock(keyLock)
+            }
+        }
         // check if co 1 san pham het hang trong kho
-        // if(acquireProduct.includes(false)){
-        //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
-        // }
+        if(acquireProduct.includes(false)){
+            return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
+        }
         newOrder = await orderV2Schema.create({
             order_userId:userId,
             order_checkout:checkout_order,
@@ -151,13 +152,12 @@ class CheckoutService {
         if (newOrder) {
             for (let i = 0; i < shop_order_ids_new.length; i++) {
             const productIdToRemove = shop_order_ids_new[i].item_products[0].productId;
-            
+            const quantityProductIdToRemove = shop_order_ids_new[i].item_products[0].quantity;
             try {
                 const result = await cartv2Schema.updateOne(
                 { "cart_userId": userId },
                 { $pull: { "cart_products": { "productId": productIdToRemove } } }
                 );
-        
                 // Kết quả của updateOne được trả về trực tiếp
                 console.log(`Đã xoá sản phẩm với productId ${productIdToRemove}`);
             } catch (error) {
@@ -183,7 +183,6 @@ class CheckoutService {
         for (let index = 0; index < foundOrders.length; index++) {
             const element = foundOrders[index];
             const findShop = await storeDetailSchema.findById(element.order_products[0].shopId);
-            console.log(findShop);
             const findProductOder = await productSchema.findById(element.order_products[0].item_products[0].productId);
             orderRes.user.push(
             {
