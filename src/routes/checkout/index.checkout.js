@@ -9,4 +9,7 @@ router.use(authentication);
 router.get('/getAllOrderForShop/:q',asyneHandler(checkoutController.getOrderByIdForShop));
 router.get('/getAllOrderForUser/:q',asyneHandler(checkoutController.getOrdersByUser));
 router.patch('/changeStatus', asyneHandler(checkoutController.changeStatus))
+router.patch('/changeStatusByUser', asyneHandler(checkoutController.changeStatusByUser))
+router.patch('/cancelByShop/:id', asyneHandler(checkoutController.cancelByShop))
+router.patch('/cancelByUser/:id', asyneHandler(checkoutController.cancelByUser))
 module.exports = router;
