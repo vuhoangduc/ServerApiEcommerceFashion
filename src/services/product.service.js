@@ -211,6 +211,7 @@ class ProductService {
         resProduct.product_thumb = product.product_thumb;
         resProduct.product_description = product.product_description;
         resProduct.product_price = product.product_price;
+        resProduct.product_sold = product.product_sold;
         resProduct.product_quantity = product.product_quantity;
         resProduct.category = product.category;
         resProduct.product_attributes = product.product_attributes;
