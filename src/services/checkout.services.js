@@ -129,18 +129,18 @@ class CheckoutService {
         // check lai mot lan nua xem vuot ton kho hay ko?
         const products = shop_order_ids_new.flatMap(order => order.item_products);
         const acquireProduct = [];
-        for (let i = 0; i < products.length; i++) {
-            const {productId,quantity} = products[i];
-            const keyLock = await acquirelock(productId,quantity,cartId);
-            acquireProduct.push(keyLock ? true:false);
-            if(keyLock){
-                await releaselock(keyLock)
-            }
-        }
-        // check if co 1 san pham het hang trong kho
-        if(acquireProduct.includes(false)){
-            return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
-        }
+        // for (let i = 0; i < products.length; i++) {
+        //     const {productId,quantity} = products[i];
+        //     const keyLock = await acquirelock(productId,quantity,cartId);
+        //     acquireProduct.push(keyLock ? true:false);
+        //     if(keyLock){
+        //         await releaselock(keyLock)
+        //     }
+        // }
+        // // check if co 1 san pham het hang trong kho
+        // if(acquireProduct.includes(false)){
+        //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
+        // }
         newOrder = await orderV2Schema.create({
             order_userId:userId,
             order_checkout:checkout_order,
@@ -214,8 +214,33 @@ class CheckoutService {
     /*
         1> cancel Order [User]
     */
-        static async cancelOrderByUser(){
-        
+    static async cancelOrderByUser({orderId,userId}){
+        const order = await orderV2Schema.findOneAndUpdate({ _id:orderId,order_userId:userId }, {
+            $set: { order_status: 'cancelled' }
+        }, { new: true })
+        if (!order) {
+            return {
+                message: 'Hủy đơn hàng thất bại'
+            }
+        }
+        return {
+            message: 'Hủy đơn hàng thành công',
+            order
+        }
+    }
+    static async cancelOrderByShop({orderId,shopId}){
+        const order = await orderV2Schema.findOneAndUpdate({ _id:orderId,"order_products.shopId":shopId }, {
+            $set: { order_status: 'cancelled' }
+        }, { new: true })
+        if (!order) {
+            return {
+                message: 'Hủy đơn hàng thất bại'
+            }
+        }
+        return {
+            message: 'Hủy đơn hàng thành công',
+            order
+        }
     }
     /*
         1> Update Order Status [Shop | Admin]
@@ -235,7 +260,20 @@ class CheckoutService {
         order
     }
 }
-
+static async updateOrderStatusByUser({ userId,order_id, status }){
+const order = await orderV2Schema.findOneAndUpdate({ _id: order_id,order_userId:userId }, {
+    $set: { order_status: status }
+}, { new: true })
+if (!order) {
+    return {
+        message: 'Thay đổi trạng thái đơn hàng thất bại'
+    }
+}
+return {
+    message: 'Thay đổi trạng thái đơn hàng thành công',
+    order
+}
+}
 
     static getOrderByIdForShop = async ({ shopId,query }) => {
         const orderRes = {

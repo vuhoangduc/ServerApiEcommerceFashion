@@ -23,7 +23,9 @@ class CartV2Controller{
     listToCart = async (req,res,next) =>{
         new SuccessResponse({
             message:'Update Cart',
-            metadata:await CartV2Service.getListUserCart(req.body)
+            metadata:await CartV2Service.getCart({
+                userId:req.user.userId
+            })
         }).send(res)
     }
 

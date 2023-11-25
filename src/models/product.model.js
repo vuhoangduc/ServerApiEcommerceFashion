@@ -4,25 +4,25 @@ const slugify = require('slugify')
 const DOCUMENT_NAME ='Product'
 const COLLECTION_NAME = 'products'
 
-const product_attributes_schema ={
-    color:String,
-    options:[
-        {
-            size:{type:String},
-            quantity:{type:Number},
-        }
-    ],
-}
 // const product_attributes_schema ={
 //     color:String,
-//     quantity:{type:Number,default:0},
 //     options:[
 //         {
 //             size:{type:String},
-//             options_quantity:{type:Number},
+//             quantity:{type:Number},
 //         }
 //     ],
 // }
+const product_attributes_schema ={
+    color:String,
+    quantity:{type:Number,default:0},
+    options:[
+        {
+            size:{type:String},
+            options_quantity:{type:Number},
+        }
+    ],
+}
 const productSchema = new Schema({
     product_name:{type:String, required:true},
     product_thumb:[{type:String}],
@@ -40,7 +40,7 @@ const productSchema = new Schema({
         max:[5,'Rating must be above 5.0'],
         set:(val) =>Math.round(val *10) /10
     },
-    product_variation:{type:Array, default:[]},
+    product_sold:{type:Number,default:0},
     isDraft:{type:Boolean,default:true,index:true,select:true},
     isPublished:{type:Boolean,default:false,index:true,select:true},
 },{

@@ -108,7 +108,7 @@ class DiscountService {
     }
 
     static async getAllDiscountCodeByShop({
-        limit,page,shopId
+        limit=5,page=1,shopId
     }){
         const discounts = await findAllDiscountCodeUnSelect({
             limit:+limit,
@@ -118,10 +118,11 @@ class DiscountService {
                 discount_is_active:true,
             },
             unSelect:['__v','discount_shopId'],
-            model:discounts
+            model:discountModel
         })
         return discounts
     }
+
     static async getDiscountAmount({codeId,userId,shopId,products}){
         console.log({codeId,userId,shopId,products});
         const foundDiscount = await checkDiscountExists({
