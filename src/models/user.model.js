@@ -22,13 +22,17 @@ var userSchema = new Schema({
         enum: ['active', 'inactive'],
         default: 'inactive'
     },
-    role:{
-        type:String,
-        enum:['Admin','Shop','User'],
+    role: {
+        type: String,
+        enum: ['Admin', 'Shop', 'User'],
         default: 'User'
 
     },
     information: { type: Schema.Types.ObjectId, ref: 'Information' },
+    disable: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
     collection: COLLECTION_NAME
