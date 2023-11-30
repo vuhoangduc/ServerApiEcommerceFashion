@@ -7,13 +7,15 @@ const {
     checkProductByServer
 } = require('../models/repositories/product.repo');
 const { getDiscountAmount } = require('./discount.services');
-const { acquirelock, releaselock } = require('./redis.services');
+const { acquirelock } = require('./redis.services');
 const orderV2Schema = require('../models/orderV2.model');
 const productSchema = require('../models/product.model');
 const cartv2Schema = require('../models/cartV2.model');
 const inventorySchema = require('../models/inventory.model');
 const storeDetailSchema = require('../models/storeDetails.model')
 const { findById } = require('../services/userSchema.services');
+const { reservationInventory } = require('../models/repositories/inventory.repo');
+const { pushNotiToSystem } = require('./notification.services');
 
 class CheckoutService {
 
@@ -70,6 +72,7 @@ class CheckoutService {
             const {shopId,shop_discounts = [],item_products = []} =shop_order_ids[i];
             // check product available
             const checkProductServer = await checkProductByServer(item_products);
+            console.log(checkProductServer);
             if(!checkProductServer[0]) return {message:'oder wrong!!'};
             // tong tien don hang
             const checkoutPrice = checkProductServer.reduce((acc,product) =>{
@@ -127,16 +130,17 @@ class CheckoutService {
             shop_order_ids:[shop_order_ids]
         })
         // check lai mot lan nua xem vuot ton kho hay ko?
+        console.log(shop_order_ids_new);
         const products = shop_order_ids_new.flatMap(order => order.item_products);
         const acquireProduct = [];
-        // for (let i = 0; i < products.length; i++) {
-        //     const {productId,quantity} = products[i];
-        //     const keyLock = await acquirelock(productId,quantity,cartId);
-        //     acquireProduct.push(keyLock ? true:false);
-        //     if(keyLock){
-        //         await releaselock(keyLock)
-        //     }
-        // }
+        for (let i = 0; i < products.length; i++) {
+            const {productId,quantity,color,size} = products[i];
+            const keyLock = await acquirelock(productId,quantity,cartId,color,size);
+            // acquireProduct.push(keyLock ? true:false);
+            // if(keyLock){
+            //     await releaselock(keyLock)
+            // }
+        }
         // // check if co 1 san pham het hang trong kho
         // if(acquireProduct.includes(false)){
         //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
@@ -152,12 +156,20 @@ class CheckoutService {
         if (newOrder) {
             for (let i = 0; i < shop_order_ids_new.length; i++) {
             const productIdToRemove = shop_order_ids_new[i].item_products[0].productId;
-            const quantityProductIdToRemove = shop_order_ids_new[i].item_products[0].quantity;
             try {
                 const result = await cartv2Schema.updateOne(
                 { "cart_userId": userId },
                 { $pull: { "cart_products": { "productId": productIdToRemove } } }
                 );
+                pushNotiToSystem({
+                    type:'order-001',
+                    receivedId:'',
+                    senderId:'',
+                    options:{
+                        productId:'',
+                        product_name:''
+                    }
+                })
                 // Kết quả của updateOne được trả về trực tiếp
                 console.log(`Đã xoá sản phẩm với productId ${productIdToRemove}`);
             } catch (error) {
