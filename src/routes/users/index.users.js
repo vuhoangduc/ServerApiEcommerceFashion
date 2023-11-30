@@ -6,5 +6,7 @@ const { authentication } = require('../../auth/authUtils');
 const upload = require('../../util/upload_file');
 router.post('/setUpAcc/:id',upload.single('avatar'),asyneHandler(userController.setUpAcc));
 router.use(authentication);
-router.put('/updateUser',upload.single('avatar'),asyneHandler(userController.updateUser));
+router.put('/updateUser', upload.single('avatar'), asyneHandler(userController.updateUser));
+router.put('/changePassword', asyneHandler(userController.changePassword));
+router.get('/getProfile', asyneHandler(userController.getProfile));
 module.exports = router;
