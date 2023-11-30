@@ -1,6 +1,7 @@
 const productSchema = require('../models/product.model');
 const reviewSchema = require('../models/review.model');
 const shopSchema = require('../models/storeDetails.model');
+const {pushNotiToSystem} = require('../services/notification.services');
 const { findAllDraftsForShop,
     publishProductByShop,
     findAllPublicForShop,
@@ -26,8 +27,9 @@ class ProductService {
             let sumQuanity = 0;
             const productAttributesJSON = JSON.parse(product_attributes);
             productAttributesJSON.forEach(attribute => {
+                console.log(attribute);
                 const color = attribute.color;
-                const totalQuantity = attribute.options.reduce((acc, option) => acc + option.options_quantity, 0);
+                const totalQuantity = attribute.options.reduce((acc, option) => acc + Number(option.options_quantity), 0);
                 attribute.quantity = totalQuantity;  // Corrected line
                 sumQuanity+=totalQuantity;
             });
@@ -50,18 +52,19 @@ class ProductService {
                     productId:newProduct._id,
                     shopId:newProduct.product_shop,
                     stock:newProduct.product_quantity,
+                    attributes:newProduct.product_attributes
                 })
                 // push noti system
-                // pushNotiToSystem({
-                //     type:'shop-001',
-                //     receivedId:1,
-                //     senderId:newProduct.product_shop,
-                //     options:{
-                //         product_name:product_name,
-                //         shop_name:product_shop
-                //     }
-                // }).then(rs => console.log(rs))
-                // .catch(console.error)
+                pushNotiToSystem({
+                    type:'shop-001',
+                    receivedId:1,
+                    senderId:newProduct.product_shop,
+                    options:{
+                        product_name:product_name,
+                        shop_name:product_shop
+                    }
+                }).then(rs => console.log(rs))
+                .catch(console.error)
             }
             return {
                 message: 'Tạo sản phẩm thành công',
@@ -216,6 +219,7 @@ class ProductService {
         resProduct.category = product.category;
         resProduct.product_attributes = product.product_attributes;
         resProduct.product_ratingAverage = product.product_ratingAverage;
+        resProduct.shop_id = shop._id;
         resProduct.shop_name = shop.nameShop;
         resProduct.shop_avatar = shop.avatarShop;
         resProduct.reviews = reviews == '' ? 'Chưa có đánh giá nào' : reviews;

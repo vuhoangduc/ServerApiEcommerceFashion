@@ -179,9 +179,8 @@ class DiscountService {
 
     static async deleteDiscountCode({shopId,codeId}){
         const deleted = await discountModel.findOneAndDelete({
-            discount_code:codeId,
+            _id:codeId,
             discount_shopId: converToObjectIdMongodb(shopId),
-
         })
         return deleted
     }
@@ -205,7 +204,6 @@ class DiscountService {
                 discount_uses_count:-1
             }
         })
-
         return result;
     }
 }

@@ -1,6 +1,7 @@
 const cartV2Model = require('../models/cartV2.model');
 const cartModel = require('../models/cartV2.model');
 const productModel = require('../models/product.model');
+const shopSchema = require('../models/storeDetails.model');
 const { getProductById } = require('../models/repositories/product.repo');
 /*
     Key features :Cart Service
@@ -24,19 +25,26 @@ class CartV2Service {
         options = {upsert:true, new:true}
         return await cartModel.findOneAndUpdate(query,updateOrIssert,options);
     }
-    static async updateUserCartQuantity({userId,product}){
-        const {productId,quantity} = product;
-
+    static async updateUserCartQuantity({ userId, product }) {
+        console.log(product);
+        const { productId, quantity, color, size } = product;
         const query = {
-            cart_userId:userId,
-            'cart_products.productId':productId
-        },updateSet = {
-            $inc:{
-                'cart_products.$.quantity':quantity
+            cart_userId: userId,
+            cart_products: {
+                $elemMatch: {
+                    productId: productId,
+                    color: color,
+                    size: size
+                }
             }
-        },options = {upsert:true,new:true}
-
-        return await cartModel.findOneAndUpdate(query,updateSet,options);
+        };
+        const updateSet = {
+            $inc: {
+                'cart_products.$.quantity': quantity
+            }
+        };
+        const options = { upsert: true, new: true };
+        return await cartModel.findOneAndUpdate(query, updateSet, options);
     }
     // END REPO CART ///
     static async addToCart({userId,product}){
@@ -50,13 +58,18 @@ class CartV2Service {
             userCart.cart_products = [product];
             return await userCart.save();
         }
-        const productIndex = userCart.cart_products.findIndex(p => p.productId === product.productId);
-        if(productIndex === -1){
+        const { cart_products } = userCart;
+        // tim ra product co id trung với id trong cart
+        const existingProduct = cart_products.find(p => p.productId === product.productId);
+        const foundProduct= cart_products.find(item => item.productId === product.productId
+            && item.color === product.color
+            && item.size === product.size);
+        if(!foundProduct){
             userCart.cart_products.push(product)
             return await userCart.save();
         }
         // gio hang ton tai va co san pham nay thi update quantity
-        return await CartV2Service.updateUserCartQuantity({userId,product})
+        return await CartV2Service.updateUserCartQuantity({userId,product});
     }
     // update
     /*
@@ -123,43 +136,12 @@ class CartV2Service {
         for (let i = 0; i < cart.cart_products.length; i++) {
             const product = cart.cart_products[i];
             const foundProduct = await productModel.findById(product.productId);
-            cart.cart_products[i].push({
-                product_thumb:foundProduct.product_thumb[0]
-            })
+            const foundShop = await shopSchema.findOne({_id:product.shopId});
+            cart.cart_products[i].product_thumb = foundProduct.product_thumb[0];
+            cart.cart_products[i].name_shop=foundShop.nameShop,
+            cart.cart_products[i].avatar_shop=foundShop.avatarShop
+
         }
-        // let totalPrice = 0;
-        // for (const product of cart.products) {
-        //     const price = parseFloat(product.product_id.product_price); // Chuyển giá thành số nếu nó là một chuỗi
-        //     const quantity = product.quantity;
-        //     totalPrice += price * quantity;
-        // }
-        // cart.totalPrice = totalPrice;
-        // for (let i = 0; i < cart.products.length; i++) {
-        //     for (let j = 0; j < cart.products[i].product_id.product_thumb.length; j++) {
-        //         cart.products[i].product_id.product_thumb[j] = `https://1f79-116-96-46-69.ngrok-free.app/uploads/`+cart.products[i].product_id.product_thumb[j];
-        //     }
-        // }
-        // const resProduct = [];
-        // for ( let i = 0; i < cart.products.length; i++){
-        //     const e = cart.products[i].product_id;
-        //     const shop = await shopSchema.findOne({_id:e.product_shop})
-        //     resProduct.push({
-        //         product_id:e._id,
-        //         product_name:e.product_name,
-        //         product_thumb:e.product_thumb[0],
-        //         product_price:e.product_price,
-        //         product_shop:e.product_shop,
-        //         product_quantity:cart.products[i].quantity,
-        //         color:cart.products[i].color,
-        //         size:cart.products[i].size,
-        //         name_shop:shop.nameShop,
-        //         avatar_shop:'https://1f79-116-96-46-69.ngrok-free.app/uploads/'+shop.avatarShop,
-        //     })
-        // }
-        // const resCart = {
-        //     cartId:cart._id,
-        //     products:resProduct
-        // };
         return{
             message:'Lấy các sản phẩm trong giỏ hàng thành công',
             cart:cart

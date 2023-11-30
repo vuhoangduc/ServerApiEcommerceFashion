@@ -59,7 +59,34 @@ const initSocketManager = (server) => {
                 }
             }
         });
-
+        socket.on("logout", async () => {
+            try {
+                console.log(onlineUsers);
+                const userDis = onlineUsers.find((user) => user.socketId === socket.id);
+                onlineUsers = onlineUsers.filter((user) => user.socketId != socket.id)
+                if (userDis) {
+                    console.log("User disconnected", userDis.userId);
+                    // Update user status to "inactive"
+                    const updatedUser = await updateStatus(userDis.userId);
+                    if (updatedUser) {
+                        const metadata = {
+                            userId: updatedUser._id,
+                            status: updatedUser.status
+                        }
+                        console.log("User status updated:");
+                        setTimeout(() => {
+                            io.emit('update-status', metadata)
+                        }, 2000)
+                    } else {
+                        console.log("User not found or status update failed");
+                    }
+                } else {
+                    console.log("Disconnected user not found in onlineUsers");
+                }
+            } catch (error) {
+                console.error("Error handling user disconnect:", error);
+            }
+        });
         socket.on("disconnect", async () => {
             try {
                 console.log(onlineUsers);

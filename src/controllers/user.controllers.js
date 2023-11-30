@@ -14,7 +14,9 @@ class UserController {
             })
         }).send(res);
     }
-    changePassword = async (req, res, next) => {
+  
+  
+      changePassword = async (req, res, next) => {
         new SuccessResponse({
             metadata: await UserService.changePassword({
                 userId: req.user.userId,
@@ -22,6 +24,22 @@ class UserController {
             })
         }).send(res);
     }
+
+              
+    setUpAcc = async(req,res,next)=>{
+        if(!req.file){
+            req.file={
+                path:'1697261656746-profile.png'
+            }
+        }
+        new SuccessResponse({
+            metadata: await UserService.updateUser(req.file.path,{
+                userId:req.params.id,
+                ...req.body
+            })
+        }).send(res);
+    }
+
     getProfile = async (req, res, next) => {
         new SuccessResponse({
             metadata: await UserService.getProfile({
