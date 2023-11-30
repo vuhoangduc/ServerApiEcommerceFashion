@@ -12,5 +12,6 @@ router.use('/v1/api/discount', require('./discounts/index.discounts'));
 router.use('/v1/api/checkout', require('./checkout/index.checkout'));
 router.use('/v1/api/inventory', require('./inventory/inventory.index'));
 router.use('/v1/api/chat', require('./message/index.message'));
+router.use('/v1/api/notification', require('./notification/index.notification'));
 router.use('/v1/api/admin', require('./admin/index.admin'));
 module.exports = router;

@@ -26,7 +26,7 @@ class MessageService {
             userId,
             shopId
         })
-        if(foundChat) return {message:'cuộc trò truyện đã được tạo'};
+        if(!foundChat) return {message:'thất bại!!!'};
 
         const newChat = await conversationSchema.create({
             userId,

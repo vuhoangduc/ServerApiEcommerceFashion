@@ -50,6 +50,15 @@ class DiscountController{
             })
         }).send(res)
     }
+    deleteDiscount = async (req,res,next)=>{
+        new SuccessResponse({
+            message :'Delete thanh cong',
+            metadata: await DiscountService.deleteDiscountCode({
+                shopId:req.user.userId,
+                codeId:req.params.id
+            })
+        }).send(res)
+    }
 
 }
 

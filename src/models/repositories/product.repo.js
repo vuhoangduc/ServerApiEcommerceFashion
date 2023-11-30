@@ -55,14 +55,33 @@ const getProductById = async (productId) =>{
 const checkProductByServer = async (products) =>{
     return await Promise.all(products.map(async product =>{
         const foundProduct = await getProductById(product.productId);
+        console.log(foundProduct);
         if(foundProduct){
             return{
                 price:foundProduct.product_price,
                 quantity:product.quantity,
                 productId:product.productId,
+                color:product.color,
+                size:product.size
             }
         }
     }))
+}
+const updateProductSold = async ({productId,type,quantity}) =>{
+    switch (type) {
+        case 'tang':
+            const tang = await ProductModel.updateOne(
+                { _id: converToObjectIdMongodb(productId) },
+                { $inc: { product_sold: +quantity } }
+            );
+            break;
+        case 'giam':
+            const giam = await ProductModel.updateOne(
+                { _id: converToObjectIdMongodb(productId) },
+                { $inc: { product_sold: -quantity } }
+            );
+        break;
+    }
 }
 module.exports ={
     findAllDraftsForShop,
@@ -70,5 +89,6 @@ module.exports ={
     findAllPublicForShop,
     unpublishProductByShop,
     getProductById,
-    checkProductByServer
+    checkProductByServer,
+    updateProductSold
 }
