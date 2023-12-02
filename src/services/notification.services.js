@@ -43,7 +43,8 @@ const listNotiByUser = async ({
                 noti_senderId:1,
                 noti_receiveId:1,
                 noti_content:1,
-                createAt:1
+                createdAt:1,
+                noti_options:1
             }
         }
     ])

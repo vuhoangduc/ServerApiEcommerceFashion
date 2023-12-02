@@ -407,7 +407,7 @@ class AdminService {
             {
                 $match: {
                     'order_products.shopId': shopId,
-                    'order_status': 'pending',
+                    'order_status': 'delivered',
                 },
             },
             {

@@ -16,6 +16,7 @@ const storeDetailSchema = require('../models/storeDetails.model')
 const { findById } = require('../services/userSchema.services');
 const { reservationInventory } = require('../models/repositories/inventory.repo');
 const { pushNotiToSystem } = require('./notification.services');
+const { converToObjectIdMongodb } = require('../util');
 
 class CheckoutService {
 
@@ -57,11 +58,13 @@ class CheckoutService {
         }
     */
     static  async checkoutReview({
-        cartId,userId,shop_order_ids,
+        cartId,userId,shop_order_ids,type
     }){
+        if(type!='mua-ngay'){
         // check cartId ton tai ko?
         const foundCart = await findCartId(cartId)
         if(!foundCart) return {message:'ko tim thay gio hang'};
+        }
         const checkout_order = {
             totalPrice: 0,// tong tien hang
             feeShip:0, // phi van chuyen
@@ -163,11 +166,11 @@ class CheckoutService {
                 );
                 pushNotiToSystem({
                     type:'order-001',
-                    receivedId:'',
-                    senderId:'',
+                    receivedId:1,
+                    senderId:userId,
                     options:{
-                        productId:'',
-                        product_name:''
+                        productId:productIdToRemove,
+                        orderId:newOrder._id
                     }
                 })
                 // Kết quả của updateOne được trả về trực tiếp

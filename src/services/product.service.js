@@ -112,22 +112,39 @@ class ProductService {
         product_price,
         category,
         product_attributes }) => {
-            
-        const arrthumb = await Promise.all(thumbs.map(async (thumb) => {
-            return thumb.filename;
-        }));
+            let sumQuanity = 0;
+            let arrThumb = [];
+            if (thumbs.length < 3) {
+                arrThumb = [
+                    '1700837254924-Screenshot 2023-11-24 214347.png',
+                    '1700837263929-Screenshot 2023-11-24 214430.png',
+                    '1700837270775-Screenshot 2023-11-24 214512.png'
+                ]
+            } else {
+                arrThumb = await Promise.all(thumbs.map(async (thumb) => {
+                    return thumb.filename;
+                }));
+            }
         const productAttributesJSON = JSON.parse(product_attributes);
+        productAttributesJSON.forEach(attribute => {
+            const color = attribute.color;
+            const totalQuantity = attribute.options.reduce((acc, option) => acc + Number(option.options_quantity), 0);
+            attribute.quantity = totalQuantity;  // Corrected line
+            sumQuanity+=totalQuantity;
+        });
         const product = await productSchema.findByIdAndUpdate(
             { _id: product_id },
             {
                 $set:
                 {
-                    product_thumb: arrthumb,
                     product_name: product_name,
+                    product_thumb: arrThumb,
                     product_description: product_description,
                     product_price: product_price,
                     category: category,
+                    product_shop: product_shop,
                     product_attributes: productAttributesJSON,
+                    product_quantity: sumQuanity
                 }
             }
         );
