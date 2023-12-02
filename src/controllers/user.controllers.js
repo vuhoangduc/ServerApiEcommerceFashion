@@ -14,9 +14,8 @@ class UserController {
             })
         }).send(res);
     }
-  
-  
-      changePassword = async (req, res, next) => {
+
+    changePassword = async (req, res, next) => {
         new SuccessResponse({
             metadata: await UserService.changePassword({
                 userId: req.user.userId,
@@ -24,8 +23,6 @@ class UserController {
             })
         }).send(res);
     }
-
-              
     setUpAcc = async(req,res,next)=>{
         if(!req.file){
             req.file={

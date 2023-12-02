@@ -26,8 +26,8 @@ class CartV2Service {
         return await cartModel.findOneAndUpdate(query,updateOrIssert,options);
     }
     static async updateUserCartQuantity({ userId, product }) {
-        console.log(product);
         const { productId, quantity, color, size } = product;
+        console.log({productId,quantity,size,color});
         const query = {
             cart_userId: userId,
             cart_products: {
@@ -88,23 +88,25 @@ class CartV2Service {
         ]
     */
     static async updateCart({userId,shop_order_ids}){
-        const {productId,quantity,old_quantity} = shop_order_ids[0]?.item_product[0],
+        const {productId,quantity,old_quantity,size,color} = shop_order_ids[0]?.item_product[0];
         // check product
-        foundProduct = await getProductById(productId);
+        const foundProduct = await getProductById(productId);
         if(!foundProduct) return {message:'Product '}
         // compare
         if(foundProduct.product_shop.toString() !== shop_order_ids[0]?.shopId){
             return {message:'Product do not belong to the shop'}
         }
         if(quantity === 0){
-            // deleted
+            deleteUserCart(userId,productId)
         }
         return await CartV2Service.updateUserCartQuantity({
             userId,
             product:{
                 productId,
-                quantity:quantity - old_quantity
-            }
+                quantity:quantity - old_quantity,
+                size,
+                color
+            },
         }
         )
     }
