@@ -22,11 +22,14 @@ class MessageService {
     };
 
     static createConversation = async ({userId,shopId}) =>{
-        const foundChat = conversationSchema.findOne({
+        const foundChat = await conversationSchema.findOne({
             userId,
             shopId
         })
-        if(!foundChat) return {message:'thất bại!!!'};
+        if(foundChat) return {
+            message:'Đã có cuộc gọi',
+            conversationId:foundChat._id
+        };
 
         const newChat = await conversationSchema.create({
             userId,
