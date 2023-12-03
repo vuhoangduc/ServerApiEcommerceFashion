@@ -137,11 +137,13 @@ class CartV2Service {
         if (!cart) return {message:'Giỏ hàng của bạn chưa có sản phẩm nào'};
         for (let i = 0; i < cart.cart_products.length; i++) {
             const product = cart.cart_products[i];
+            console.log(cart.cart_products[i]);
             const foundProduct = await productModel.findById(product.productId);
             const foundShop = await shopSchema.findOne({_id:product.shopId});
             cart.cart_products[i].product_thumb = foundProduct.product_thumb[0];
             cart.cart_products[i].name_shop=foundShop.nameShop,
             cart.cart_products[i].avatar_shop=foundShop.avatarShop
+            cart.cart_products[i].itemId=product.productId+'-'+product.color+'-'+product.size
 
         }
         return{

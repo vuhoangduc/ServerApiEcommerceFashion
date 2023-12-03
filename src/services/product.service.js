@@ -112,6 +112,7 @@ class ProductService {
         product_price,
         category,
         product_attributes }) => {
+
             let sumQuanity = 0;
             let arrThumb = [];
             if (thumbs.length < 3) {
@@ -142,7 +143,6 @@ class ProductService {
                     product_description: product_description,
                     product_price: product_price,
                     category: category,
-                    product_shop: product_shop,
                     product_attributes: productAttributesJSON,
                     product_quantity: sumQuanity
                 }

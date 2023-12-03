@@ -1,4 +1,5 @@
 const { reservationInventory } = require('../models/repositories/inventory.repo');
+const { BadRequestError, StatusCode } = require('../core/error.response');
 const { promisify } = require('util');
 // const redisClient = require('../db/init.redis');
 // const redis = require('redis');
@@ -22,6 +23,9 @@ const acquirelock = async (productId, quantity,cartId,color,size) => {
         color,
         size
     });
+    if(!isReservation){
+        return false;
+    }
     return true;
     // const key = `lock_v2023_${productId}`;
     // const retryTimes = 10;
