@@ -29,6 +29,14 @@ class AccessController{
             })
         }).send(res);
     }
+    verifyOtp = async (req,res,next)=>{
+        const {error} = userValidate({
+            email: req.body.email,
+            password: req.body.password,
+        })
+        if(error) return res.send({error: error.details[0].message,status:404});
+        res.send(await AccessService.verifyOtp(req.body));
+    }
 
 }
 module.exports = new AccessController;
