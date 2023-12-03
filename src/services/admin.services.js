@@ -152,6 +152,9 @@ class AdminService {
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" },
                 }
+            },
+            {
+                $sort: { createdAt: -1 } // 1 để sắp xếp theo thứ tự tăng dần, -1 để sắp xếp theo thứ tự giảm dần
             }
         ]);
         return foundOrder;
@@ -455,7 +458,7 @@ class AdminService {
                 disable: true,
             }
         })
-        if (userDisabled) return { message: 'Vô hiệu hóa tài khoản thất bại' }
+        if (!userDisabled) return { message: 'Vô hiệu hóa tài khoản thất bại' }
         return {
             message: 'Vô hiệu hóa tài khoản thành công',
             userDisabled
