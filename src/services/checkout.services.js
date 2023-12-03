@@ -17,7 +17,7 @@ const { findById } = require('../services/userSchema.services');
 const { reservationInventory } = require('../models/repositories/inventory.repo');
 const { pushNotiToSystem } = require('./notification.services');
 const { converToObjectIdMongodb } = require('../util');
-
+const { BadRequestError, StatusCode } = require('../core/error.response');
 class CheckoutService {
 
     /*
@@ -133,19 +133,30 @@ class CheckoutService {
             shop_order_ids:[shop_order_ids]
         })
         // check lai mot lan nua xem vuot ton kho hay ko?
-        console.log(shop_order_ids_new);
         const products = shop_order_ids_new.flatMap(order => order.item_products);
         const acquireProduct = [];
         for (let i = 0; i < products.length; i++) {
-            const {productId,quantity,color,size} = products[i];
+
+            const {productId,quantity,color,size,} = products[i];
             const keyLock = await acquirelock(productId,quantity,cartId,color,size);
+            if(keyLock == false){
+                pushNotiToSystem({
+                    type:'order-002',
+                    receivedId:1,
+                    senderId:shop_order_ids_new[0].shopId,
+                    options:{
+                        productId:productId,
+                    }
+                })
+                throw new BadRequestError('Sản phẩm đã có cập nhật mới, vui lòng kiểm tra lại có thể là số lượng ko đủ', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+            }
             // acquireProduct.push(keyLock ? true:false);
             // if(keyLock){
             //     await releaselock(keyLock)
             // }
         }
         // // check if co 1 san pham het hang trong kho
-        // if(acquireProduct.includes(false)){
+        // if(keyLock == false){
         //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
         // }
         newOrder = await orderV2Schema.create({

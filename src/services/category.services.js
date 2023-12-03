@@ -34,7 +34,7 @@ class CategoryService {
         }
     }
     static async getAllCategory() {
-        const category = await categorySchema.find();
+        const category = await categorySchema.find({});
         if (!category) { return { message: 'Không có loại sản phẩm nào' } }
         return {
             category

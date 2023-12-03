@@ -14,6 +14,9 @@ const pushNotiToSystem = async ({
     }else if(type === 'order-001'){
         noti_content = 'Bạn có 1 đơn hàng mới!'
     }
+    else if(type === 'order-002'){
+        noti_content = 'Sản phẩm này của bạn đang trong tình trạng hết hàng'
+    }
     const newNoti = await notificationModel.create({
         noti_type:type,
         noti_content,
