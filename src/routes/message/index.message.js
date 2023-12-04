@@ -9,7 +9,7 @@ router.post('/sendMessage',asyneHandler(messageController.sendMessage))
 router.post('/createConvarsation',asyneHandler(messageController.createConversation))
 router.get('/getConvarsationsForShop',asyneHandler(messageController.getConvarsationsForShop))
 // router.get('/getMessager/:id',asyneHandler(messageController.getMessager))
-// router.get('/getConvarsations',asyneHandler(messageController.getConvarsations))
+router.get('/getConvarsations',asyneHandler(messageController.getConvarsations))
 
 
 module.exports = router;

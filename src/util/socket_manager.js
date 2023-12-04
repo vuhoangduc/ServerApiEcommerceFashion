@@ -26,6 +26,7 @@ const initSocketManager = (server) => {
                     // Xử lý lỗi hoặc gửi thông báo lỗi cho client
                     return;
                 }
+                console.log(message);
                 const result = await MessageService.sendMessage({senderId:senderId, message:message, conversationId:conversationId});
                 io.to(roomName).emit('send message',{
                     _id:result._id,
@@ -35,10 +36,14 @@ const initSocketManager = (server) => {
                     updatedAt:result.updatedAt
                 });
             });
-            socket.on('leaveRoom', (roomName) => {
-                socket.leave(roomName);
-                console.log(`User ${socket.id} left room: ${roomName}`);
-            });
+        });
+
+        socket.on('leaveRoom', (roomName) => {
+            socket.leave(roomName);
+            console.log(`User ${socket.id} left room: ${roomName}`);
+            
+            // Xóa tất cả các lắng nghe 'chat message' khi rời phòng
+            socket.removeAllListeners('chat message');
         });
 
         socket.on("new-user-add", async (newUserId) => {

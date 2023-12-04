@@ -32,11 +32,13 @@ class MessageController {
         }).send(res)
     }
 
-    // getConvarsations = async (req,res,next) =>{
-    //     new SuccessResponse({
-    //         metadata: await MessageService.getConvarsations(req.user.userId)
-    //     }).send(res)
-    // }
+    getConvarsations = async (req,res,next) =>{
+        new SuccessResponse({
+            metadata: await MessageService.getConversationForUser({
+                userId:req.user.userId
+            })
+        }).send(res)
+    }
 
 }
 module.exports = new MessageController;
