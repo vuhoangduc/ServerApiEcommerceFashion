@@ -63,7 +63,26 @@ class MessageService {
         }
         return chats;
     }
-
+    static getConversationForUser = async ({userId}) =>{
+        const chats = [
+        ]
+        const foundChat = await conversationSchema.find({userId:userId});
+        if(!foundChat || foundChat.length < 0) return {message:'Bạn chưa có đoạn chat nào!!!'};
+        const userOfChat = [];
+        for (let i = 0; i < foundChat.length; i++) {
+            const foundUser = await findByIdForShop(converToObjectIdMongodb(foundChat[i].shopId));
+            chats.push({
+                user:{
+                    shopId:foundUser._id,
+                    user_name:foundUser.nameShop,
+                    user_avatar:foundUser.avatarShop,
+                    user_status:'active'
+                },
+                chat:foundChat[i]
+            })
+        }
+        return chats;
+    }
     static getMessages = async ({conversationId}) =>{
         const chats = [];
         const foundChat = await conversationSchema.findOne({ _id: conversationId }).populate('messagers');

@@ -75,7 +75,7 @@ class AccessService {
             from: 'ttgvhd@gmail.com',
             to: email,
             subject: 'Your OTP Code',
-            text: `Your OTP code is: ${OTP}`
+            text: `Your OTP code is: ${OTP} sau 60 giây sẽ hết hạn`
         };
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
