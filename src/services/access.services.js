@@ -16,11 +16,12 @@ class AccessService {
         password,
         role
     }) => {
-        try {
             const otpHolder = await otpModel.find({
                 email,
             })
-            if (!otpHolder.length) throw new BadRequestError('Hết thời gian OTP!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+            if (!otpHolder.length){
+                throw new BadRequestError('Đã hệt hạn mã OTP!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+            }
             // get last otp
             const lastOtp = otpHolder[otpHolder.length - 1];
             const isValid = await validOtp({
@@ -39,9 +40,6 @@ class AccessService {
                     newUser
                 }
             }
-        } catch (error) {
-            console.error(error);
-        }
     }
     static signUp = async ({ email, password, role }) => {
         console.log(email, password, role);

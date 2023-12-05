@@ -122,6 +122,19 @@ class DiscountService {
         })
         return discounts
     }
+    static async getAllDiscountCodeOfShop({
+        shopId
+    }){
+        const discounts = await findAllDiscountCodeUnSelect({
+            filter:{
+                discount_shopId:converToObjectIdMongodb(shopId),
+                discount_is_active:true,
+            },
+            unSelect:['__v','discount_shopId'],
+            model:discountModel
+        })
+        return discounts
+    }
 
     static async getDiscountAmount({codeId,userId,shopId,products}){
         console.log({codeId,userId,shopId,products});

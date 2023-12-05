@@ -50,6 +50,14 @@ class DiscountController{
             })
         }).send(res)
     }
+    getAllDiscountCodeOfShop = async (req,res,next)=>{
+        new SuccessResponse({
+            message :'Successful Code Found',
+            metadata: await DiscountService.getAllDiscountCodeByShop({
+                shopId:req.params.id,
+            })
+        }).send(res)
+    }
     deleteDiscount = async (req,res,next)=>{
         new SuccessResponse({
             message :'Delete thanh cong',
