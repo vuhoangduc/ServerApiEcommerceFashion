@@ -2,12 +2,13 @@ const { updateUser, changePassword } = require('./userSchema.services')
 const informationUserSchema = require('../models/information.model');
 const userSchema = require('../models/user.model')
 const bcrypt = require('bcrypt');
+const { default: mongoose } = require('mongoose');
+const addressSchema = require('../models/address.model')
 class UserService {
 
-    static updateUser = async (avatar, { userId, phoneNumber, address, fullName, gender, userName }) => {
+    static updateUser = async (avatar, { userId, phoneNumber, fullName, gender, userName }) => {
         const info = await informationUserSchema.create({
             phoneNumber,
-            address,
             avatar,
             fullName,
             gender
@@ -34,10 +35,71 @@ class UserService {
         }
     }
     static getProfile = async ({ userId }) => {
-        const checkUser = await userSchema.findOne({ _id: userId }).populate('information')
+        const checkUser = await userSchema.findOne({ _id: userId })
+            .populate({
+                path: 'information',
+                populate: {
+                    path: 'address', // Use 'address' instead of 'addresses'
+                    options: { strictPopulate: false }
+                }
+            })
+            .select('-password')
+            .exec();
         if (!checkUser) return { message: 'Người dùng không tồn tại!' }
         return {
             checkUser
+        }
+    }
+    static addAddress = async ({ userId, nameAddress, address }) => {
+        const checkUser = await userSchema.findOne({ _id: userId }).populate('information')
+        if (!checkUser.information) {
+            return 'Hãy cập nhật thông tin người dùng'
+        }
+        const newAddress = await addressSchema.create({
+            nameAddress,
+            customAddress: address
+        })
+        const user = await informationUserSchema.findOneAndUpdate({ _id: checkUser.information }, {
+            $push: {
+                address: newAddress._id
+            }
+        }, { new: true }).populate('address')
+        return {
+            user
+        }
+    }
+    static deleteAddress = async ({ userId, addressId }) => {
+        const user = await userSchema.findOne({ _id: userId }).populate('information')
+        if (!user.information) {
+            return 'Hãy cập nhật thông tin người dùng'
+        }
+        await addressSchema.findOneAndDelete({ _id: addressId })
+        const deleteAddressUser = await informationUserSchema.findOneAndUpdate({
+            _id: user.information._id
+        },
+            {
+                $pull: {
+                    address: addressId
+                }
+            },
+            { new: true }).populate('address').lean();
+        return {
+            deleteAddressUser
+        }
+    }
+    static updateAddress = async ({ userId, addressId, nameAddress, address }) => {
+        const user = await userSchema.findOne({ _id: userId }).populate('information')
+        if (!user.information) {
+            return 'Hãy cập nhật thông tin người dùng'
+        }
+        const updateAddress = await addressSchema.findOneAndUpdate({ _id: addressId }, {
+            $set: {
+                nameAddress,
+                customAddress: address
+            }
+        }, { new: true })
+        return {
+            updateAddress
         }
     }
 }

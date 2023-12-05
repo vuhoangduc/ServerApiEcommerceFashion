@@ -14,7 +14,7 @@ class AdminService {
         // Thực hiện truy vấn với limit và skip
         const foundShop = await storeDetailsSchema
             .find({})
-
+            .select('-password')
         if (foundShop.length === 0) {
             return { message: 'Chưa có shop nào' };
         }
@@ -27,7 +27,13 @@ class AdminService {
         const foundUser = await userSchema
             .find({})
             .select('-password')
-            .populate('information');
+            .populate({
+                path: 'information',
+                populate: {
+                    path: 'address',
+                    options: { strictPopulate: false }
+                }
+            })
 
         if (foundUser.length === 0) {
             return { message: 'Chưa có shop nào' };

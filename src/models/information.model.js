@@ -5,9 +5,9 @@ const COLLECTION_NAME = 'informations'
 
 var informationSchema = new Schema({
     phoneNumber: { type: Number, index: true },
-    address:{type:String},
-    avatar:{type:String},
-    fullName:{type:String},
+    address: [{ type: mongoose.Types.ObjectId, ref: 'Address' }],
+    avatar: { type: String },
+    fullName: { type: String },
     gender: {
         type: String,
         enum: ['Nam', 'Nữ', 'Khác'],
