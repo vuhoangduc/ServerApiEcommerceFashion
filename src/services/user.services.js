@@ -64,7 +64,6 @@ class UserService {
                 address: newAddress._id
             }
         }, { new: true }).populate('address')
-        console.log(address);
         return {
             user
         }
