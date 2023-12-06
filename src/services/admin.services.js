@@ -25,7 +25,7 @@ class AdminService {
         // Tính toán giá trị skip dựa trên trang và kích thước trang
         // Thực hiện truy vấn với limit và skip
         const foundUser = await userSchema
-            .find({})
+            .find({ role: "User" })
             .select('-password')
             .populate({
                 path: 'information',
