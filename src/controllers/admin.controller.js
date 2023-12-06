@@ -84,5 +84,12 @@ class AdminController {
             })
         }).send(res)
     }
+    getUser = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await AdminService.getUser({
+                userId: req.params.Id
+            })
+        }).send(res)
+    }
 }
 module.exports = new AdminController;

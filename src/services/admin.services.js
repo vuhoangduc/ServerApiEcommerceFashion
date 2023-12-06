@@ -470,6 +470,111 @@ class AdminService {
             userDisabled
         }
     }
+    static getUser = async ({ userId }) => {
+        const user = await userSchema.findOne({ _id: userId })
+            .select('-password')
+            .populate({
+                path: 'information',
+                populate: {
+                    path: 'address',
+                    options: { strictPopulate: false }
+                }
+            })
+        const order = await orderSchema.aggregate([
+            {
+                $match: {
+                    order_userId: new mongoose.Types.ObjectId(userId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "order_userId",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: "$user" // Unwind the user array created by $lookup
+            },
+            {
+                $lookup: {
+                    from: "informations",
+                    localField: "user.information",
+                    foreignField: "_id",
+                    as: "userInfo"
+                }
+            },
+            {
+                $addFields: {
+                    convertedShopId: {
+                        $map: {
+                            input: "$order_products",
+                            as: "product",
+                            in: {
+                                $toObjectId: "$$product.shopId"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "convertedShopId",
+                    foreignField: "_id",
+                    as: "shopInOrder"
+                }
+            },
+            {
+                $unwind: "$order_products"
+            },
+            {
+                $addFields: {
+                    tempProductId: {
+                        $map: {
+                            input: "$order_products.item_products",
+                            as: "item",
+                            in: { $toObjectId: "$$item.productId" }
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "tempProductId",
+                    foreignField: "_id",
+                    as: "productInfo"
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    order_userId: { $first: "$userInfo" },
+                    order_checkout: { $first: "$order_checkout" },
+                    order_shipping: { $first: "$order_shipping" },
+                    order_trackingNumber: { $first: "$order_trackingNumber" },
+                    order_status: { $first: "$order_status" },
+                    createdAt: { $first: "$createdAt" },
+                    updatedAt: { $first: "$updatedAt" },
+                    __v: { $first: "$__v" },
+                    shopInOrder: { $first: "$shopInOrder" },
+                    order_products: { $push: "$order_products" },
+                    productInfo: { $push: "$productInfo" }
+                }
+            },
+            {
+                $project: {
+                    convertedShopId: 0,
+                    "user.information": 0
+                }
+            }
+        ])
+        return {
+            user, order
+        }
+    }
 }
 
 
