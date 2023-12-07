@@ -19,6 +19,14 @@ class OrderController {
             })
         }).send(res);
     }
+    returnOrder = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await orderService.returnOrder({
+                userId:req.user.userId,
+                ...req.body
+            })
+        }).send(res);
+    }
     changeStatus = async (req, res, next) => {
         new SuccessResponse({
             metadata: await orderService.changeStatus({

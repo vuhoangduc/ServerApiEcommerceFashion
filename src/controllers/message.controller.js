@@ -27,6 +27,7 @@ class MessageController {
     getMessagers = async (req,res,next) =>{
         new SuccessResponse({
             metadata: await MessageService.getMessages({
+                userId:req.user.userId,
                 conversationId:req.params.id
             })
         }).send(res)

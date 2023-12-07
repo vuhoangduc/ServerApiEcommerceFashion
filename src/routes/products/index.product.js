@@ -10,6 +10,8 @@ router.post('/reviewProduct/:id',asyneHandler(ProductController.reviewProduct))
 //query
 router.get('/getAllProductByShop/:q',asyneHandler(ProductController.getAllProductByShop));
 router.get('/getAllProductByUser',asyneHandler(ProductController.getAllProductByUser));
+router.get('/ofCategory/:id',asyneHandler(ProductController.getAllProductOfCategory));
+router.get('/ofCategoryForShop/:id',asyneHandler(ProductController.getAllProductOfCategoryForShop));
 router.get('/getProduct/:id',asyneHandler(ProductController.getProduct));
 router.get('/getAllNameProductByShop',asyneHandler(ProductController.getAllNameProductByShop));
 router.get('/findProduct/:p',asyneHandler(ProductController.findProductByName));

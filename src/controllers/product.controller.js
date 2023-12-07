@@ -93,6 +93,25 @@ class ProductController {
         })
         .send(res)
     }
+    getAllProductOfCategory = async (req,res,next) =>{
+        new SuccessResponse({
+            message: 'Lấy tất cả sản phẩm thành công',
+            metadata: await ProductService.getProductOfCategory({
+                categoryId:req.params.id
+            })
+        })
+        .send(res)
+    }
+    getAllProductOfCategoryForShop = async (req,res,next) =>{
+        new SuccessResponse({
+            message: 'Lấy tất cả sản phẩm thành công',
+            metadata: await ProductService.getAllProductOfCategoryForShop({
+                categoryId:req.params.id,
+                shopId:req.params.id
+            })
+        })
+        .send(res)
+    }
     getProduct = async (req,res,next) =>{
         new SuccessResponse({
             message:'Lấy thông tin sản phẩm thành công',

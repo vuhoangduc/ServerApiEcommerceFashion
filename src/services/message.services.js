@@ -3,13 +3,21 @@ const conversationSchema = require('../models/conversation.model');
 const messageSchema = require('../models/message.model');
 const {findById,findByIdForShop} = require('../services/userSchema.services');
 const { converToObjectIdMongodb } = require('../util');
+const socket_manager = require('../util/socket_manager');
+
 class MessageService {
 
     static sendMessage = async ({ senderId, message, conversationId }) => {
             const foundChat = await conversationSchema.findOne({ _id: conversationId });
-    
             if (!foundChat) {
                 return { message: 'Có lỗi sảy ra' };
+            }
+            if(foundChat.isRead.user.id == senderId){
+                foundChat.isRead.shop.status = false;
+                foundChat.isRead.shop.countNew = foundChat.isRead.shop.countNew+=1;
+            }else if(foundChat.isRead.shop.id == senderId){
+                foundChat.isRead.user.status = false;
+                foundChat.isRead.user.countNew = foundChat.isRead.user.countNew+=1;
             }
             const messageChat = {
                 senderId,
@@ -33,7 +41,15 @@ class MessageService {
 
         const newChat = await conversationSchema.create({
             userId,
-            shopId
+            shopId,
+            isRead:{
+                user:{
+                    id:userId
+                },
+                shop:{
+                    id:shopId
+                },
+            }
         })
         if(!newChat){
             return {message:'Có lỗi sảy ra!!'}
@@ -71,6 +87,12 @@ class MessageService {
         const userOfChat = [];
         for (let i = 0; i < foundChat.length; i++) {
             const foundUser = await findByIdForShop(converToObjectIdMongodb(foundChat[i].shopId));
+            if(!foundUser){
+                return {
+                    message:'đang có lỗi sảy ra!!',
+                    status:404
+                }
+            }
             chats.push({
                 user:{
                     shopId:foundUser._id,
@@ -83,20 +105,36 @@ class MessageService {
         }
         return chats;
     }
-    static getMessages = async ({conversationId}) =>{
+    static getMessages = async ({userId,conversationId}) =>{
         const chats = [];
         const foundChat = await conversationSchema.findOne({ _id: conversationId }).populate('messagers');
-        // const foundUser = await findById(converToObjectIdMongodb(conversationId.userId));
-        // const foundShop = await findByIdForShop(converToObjectIdMongodb(conversationId.shopId));
-        // chats.push({
-        //     foundUser,
-        //     foundShop,
-        //     foundChat
-        // })
+        if(foundChat.isRead.user.id == userId){
+            foundChat.isRead.user.status = true;
+            foundChat.isRead.user.countNew = 0;
+        }else if(foundChat.isRead.shop.id == userId){
+            foundChat.isRead.shop.status = true;
+            foundChat.isRead.shop.countNew = 0;
+        }
+        await foundChat.save();
+        if (!foundChat) {
+            return{
+                message:"Có lỗi khi xem cuộc gọi!",
+                status:401
+            }
+        }
+        foundChat.save();
         return foundChat;
     }
-    static updateConversation = async({conversationId,isRead}) =>{
-const foundChat = await conversationSchema.findOne({ _id: conversationId })
+    static updateConversation = async({conversationId,userId}) =>{
+    const foundChat = await conversationSchema.findOne({ _id: conversationId })
+    if(foundChat.isRead.user.id == userId){
+        foundChat.isRead.user.status = true;
+        foundChat.isRead.user.countNew = 0;
+    }else if(foundChat.isRead.shop.id == userId){
+        foundChat.isRead.shop.status = true;
+        foundChat.isRead.shop.countNew = 0;
+    }
+    await foundChat.save();
     }
     // static getMessager = async (data) => {
     //     const messager = await conversationSchema.

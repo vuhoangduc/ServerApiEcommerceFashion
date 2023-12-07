@@ -208,7 +208,28 @@ class ProductService {
         return foundProducts;
     }
     static async getAllProductByUser() {
-        const allProduct = await productSchema.find({ isDraft: false });
+        const allProduct = await productSchema.find({ isDraft: false })
+        .populate('category','category_name');
+        if (!allProduct || allProduct.length === 0) return { message: 'Không có sản phẩm nào' };
+        return {
+            message: 'Lấy tất cả sản phẩm thành công!!',
+            allProduct: allProduct
+        }
+    }
+    static async getProductOfCategory({categoryId}) {
+        const allProduct = await productSchema.find({ isDraft: false, category:categoryId})
+        .populate('category','category_name');
+        console.log(allProduct);
+        if (!allProduct || allProduct.length === 0) return { message: 'Không có sản phẩm nào' };
+        return {
+            message: 'Lấy tất cả sản phẩm thành công!!',
+            allProduct: allProduct
+        }
+    }
+    static async getProductOfCategoryForShop({categoryId,shopId}) {
+        const allProduct = await productSchema.find({ isDraft: false, category:categoryId, product_shop:shopId})
+        .populate('category','category_name');
+        console.log(allProduct);
         if (!allProduct || allProduct.length === 0) return { message: 'Không có sản phẩm nào' };
         return {
             message: 'Lấy tất cả sản phẩm thành công!!',

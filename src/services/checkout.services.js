@@ -337,7 +337,26 @@ return {
             orderRes
         }
     }
-
+    static returnOrder = async ({userId,orderId,note}) =>{
+        console.log({userId,orderId,note});
+        const foundOrders = await orderV2Schema.findById(orderId);
+        pushNotiToSystem({
+            type:'order-003',
+            receivedId:2,
+            senderId:foundOrders.order_products[0].shopId,
+            options:{
+                productId:foundOrders.order_products[0].item_products[0].productId,
+                orderId:foundOrders._id,
+            },
+            note
+        })
+        if (!pushNotiToSystem) {
+            throw new BadRequestError('yêu cầu trả lại hàng thất bại !!!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+        }
+        return {
+            message:'Yêu cầu thành công hãy chờ xác nhận từ shop',
+        }
+    }
     
 }
 

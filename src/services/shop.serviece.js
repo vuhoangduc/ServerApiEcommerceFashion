@@ -1,6 +1,7 @@
 const storeDetailsSchema = require('../models/storeDetails.model');
 const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
+const { BadRequestError, StatusCode } = require('../core/error.response');
 class ShopService {
     static updateShop = async (avatarShop, { shopId, nameShop, phoneNumberShop, des, emailShop, address }) => {
         try {
@@ -93,6 +94,9 @@ class ShopService {
     static getShopForShop = async ({shopId}) =>{
         const shop = await storeDetailsSchema.findById(shopId)
         .select('-createdAt -updatedAt');
+        if (!shop) {
+            throw new BadRequestError('Bạn chưa cập nhật thông tin shop', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+        }
         return shop;
     }
     

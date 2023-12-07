@@ -26,7 +26,6 @@ const initSocketManager = (server) => {
                     // Xử lý lỗi hoặc gửi thông báo lỗi cho client
                     return;
                 }
-                console.log(message);
                 const result = await MessageService.sendMessage({senderId:senderId, message:message, conversationId:conversationId});
                 io.to(roomName).emit('send message',{
                     _id:result._id,
@@ -37,8 +36,7 @@ const initSocketManager = (server) => {
                 });
             });
         });
-
-        socket.on('leaveRoom', (roomName) => {
+        socket.on('leaveRoom', ({roomName,userId}) => {
             socket.leave(roomName);
             console.log(`User ${socket.id} left room: ${roomName}`);
             
@@ -125,13 +123,20 @@ const initSocketManager = (server) => {
 };
 
 const sendNotification = (message) => {
+    console.log(message);
     io.emit('notification', { message });
 };
+const newChat = (senderUser) => {
+    console.log(senderUser);
+    // io.emit(senderUser);
+}
 const sendNewOrder = (message) => {
+    console.log(message);
     io.emit('newOrder', { message });
 };
 module.exports = {
     initSocketManager,
     sendNotification,
-    sendNewOrder
+    sendNewOrder,
+    newChat
 };
