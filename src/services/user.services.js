@@ -7,15 +7,34 @@ const addressSchema = require('../models/address.model')
 class UserService {
 
     static updateUser = async (avatar, { userId, phoneNumber, fullName, gender, userName }) => {
-        const info = await informationUserSchema.create({
-            phoneNumber,
-            avatar,
-            fullName,
-            gender
-        })
-        if (!info) return { message: 'có lỗi khi update user!' };
-        const user = await updateUser(info._id, userName, userId);
-        if (!user) return { message: 'có lỗi khi update user!!' };
+        const checkInfoUser = await userSchema.findOne({ _id: userId });
+        let user = [];
+        if (!checkInfoUser.information) {
+            const info = await informationUserSchema.create({
+                phoneNumber,
+                avatar,
+                fullName,
+                gender
+            })
+            if (!info) return { message: 'có lỗi khi update user!' };
+            user = await updateUser(info._id, userName, userId);
+            if (!user) return { message: 'có lỗi khi update user!!' };
+        } else {
+            user = await informationUserSchema.findOneAndUpdate(
+                {
+                    _id: checkInfoUser.information
+                },
+                {
+                    $set: {
+                        phoneNumber,
+                        avatar,
+                        fullName,
+                        gender
+                    }
+                }
+            )
+            if (!user) return { message: 'có lỗi khi update user!!' };
+        }
         return {
             message: "cập nhật thành công!!",
             user: user

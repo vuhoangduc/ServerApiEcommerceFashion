@@ -16,5 +16,6 @@ router.post('/unpublishedProductByAdmin', asyneHandler(adminController.unpublish
 router.get('/tradingHistory/:Id', asyneHandler(adminController.getTradingHistory));
 router.get('/statisticalShop/:Id', asyneHandler(adminController.getStatisticalShop));
 router.put('/disable/:Id', asyneHandler(adminController.disable))
+router.get('/getUser/:Id', asyneHandler(adminController.getUser))
 
 module.exports = router;
