@@ -22,7 +22,8 @@ var oderV2Schema = new Schema({
     */
     order_payment:{type:Object,default:{}},
     order_products:{type:Array, required:true},
-    order_trackingNumber:{type:String,default:'#00000'},order_status:{type:String,enum:['pending','confirmed','shipped','cancelled','delivered'],default:'pending'},
+    order_trackingNumber:{type:String,default:'#00000'},
+    order_status:{type:String,enum:['pending','confirmed','shipped','cancelled','delivered'],default:'pending'},
     
     
 }, {

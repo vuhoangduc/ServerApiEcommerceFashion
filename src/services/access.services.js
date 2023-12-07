@@ -90,14 +90,15 @@ class AccessService {
     }
     static logIn = async ({ email, password, role }) => {
         const hodelUser = await findByEmail(email);
+        console.log(hodelUser);
+        if (!hodelUser)
+            throw new BadRequestError('Tài khoản chưa tồn tại!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
         if (hodelUser.disable == true) {
             throw new BadRequestError('Tài khoản của bạn đã bị block hãy liên hệ đến admin để bt thêm chi tiết', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
         }
         if (hodelUser.role != role) {
             throw new BadRequestError('Tài khoản của bạn ko có quyền đăng nhập, hãy tạo tài khoản mới', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
         }
-        if (!hodelUser)
-            throw new BadRequestError('Tài khoản chưa tồn tại!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
         const match = await bcrypt.compare(password, hodelUser.password)
         if (!match)
             throw new BadRequestError('Mật khẩu chưa chính xác!', StatusCode.FORBIDDEN, 'INVALID_PASSWORD');

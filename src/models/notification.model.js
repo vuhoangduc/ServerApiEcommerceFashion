@@ -8,7 +8,7 @@ const COLLECTION_NAME = 'notifications'
 // shop-001: new product by user following
 
 const notificationSchema = new Schema({
-    noti_type:{type:String,enum:['order-001','order-002','promotion-002','shop-001'],required:true},
+    noti_type:{type:String,enum:['order-001','order-002','order-003','promotion-002','shop-001'],required:true},
     noti_senderId: {type:Schema.Types.ObjectId,required:true,ref:'User'},
     noti_receiveId:{type:Number,required:true},
     noti_content:{type:String,required:true},

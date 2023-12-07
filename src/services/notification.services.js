@@ -4,7 +4,8 @@ const pushNotiToSystem = async ({
     type = 'shop-001',
     receivedId = 1,
     senderId = 1,
-    options={}
+    options={},
+    note=''
 }) =>{
     let noti_content;
     if(type === 'shop-001'){
@@ -16,6 +17,9 @@ const pushNotiToSystem = async ({
     }
     else if(type === 'order-002'){
         noti_content = 'Sản phẩm này của bạn đang trong tình trạng hết hàng'
+    }
+    else if(type === 'order-003'){
+        noti_content = 'Có 1 đơn hàng của bạn đang được yêu cầu trả hàng với lý do '+note
     }
     const newNoti = await notificationModel.create({
         noti_type:type,
@@ -52,9 +56,35 @@ const listNotiByUser = async ({
         }
     ])
 }
+const listNotiByShop = async ({
+    userId=2,
+    type = 'ALL',
+    isRead=0
+}) =>{
+    const match = {noti_receiveId:userId}
+    if(type !== 'ALL'){
+        match['noti_type'] = type
+    }
+    return await notificationModel.aggregate([
+        {
+            $match: match
+        },
+        {
+            $project:{
+                noti_type:1,
+                noti_senderId:1,
+                noti_receiveId:1,
+                noti_content:1,
+                createdAt:1,
+                noti_options:1
+            }
+        }
+    ])
+}
 
 
 module.exports = {
     pushNotiToSystem,
-    listNotiByUser
+    listNotiByUser,
+    listNotiByShop
 }

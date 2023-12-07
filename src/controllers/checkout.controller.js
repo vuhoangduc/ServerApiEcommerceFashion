@@ -51,6 +51,14 @@ class CheckoutController{
             })
         }).send(res)
     }
+    returnOrder = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await CheckoutService.returnOrder({
+                userId:req.user.userId,
+                ...req.body
+            })
+        }).send(res);
+    }
     cancelByShop = async (req,res,next) =>{
         new SuccessResponse({
             message:'Hủy đơn hàng thành công',

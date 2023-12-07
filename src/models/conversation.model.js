@@ -7,8 +7,18 @@ var conversationSchema = new Schema({
     userId:{type:Schema.Types.ObjectId,ref:'User'},
     shopId:{type:Schema.Types.ObjectId,ref:'User'},
     messagers:[{type:Schema.Types.ObjectId,ref:'Message',default:[]}],
-    iSRead:{type:Boolean,default:true},
-    countNew:{type:Number,default:0},
+    isRead:{
+        user:{
+            id:{type:Schema.Types.ObjectId,ref:'User'},
+            status:{type:Boolean,default:true},
+            countNew:{type:Number,default:0},
+        },
+        shop:{
+            id:{type:Schema.Types.ObjectId,ref:'User'},
+            status:{type:Boolean,default:true},
+            countNew:{type:Number,default:0},
+        }
+    },
 },{
     timestamps:true,
     collection:COLLECTION_NAME
