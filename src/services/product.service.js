@@ -226,15 +226,32 @@ class ProductService {
             allProduct: allProduct
         }
     }
-    static async getProductOfCategoryForShop({categoryId,shopId}) {
-        const allProduct = await productSchema.find({ isDraft: false, category:categoryId, product_shop:shopId})
-        .populate('category','category_name');
-        console.log(allProduct);
-        if (!allProduct || allProduct.length === 0) return { message: 'Không có sản phẩm nào' };
-        return {
-            message: 'Lấy tất cả sản phẩm thành công!!',
-            allProduct: allProduct
+    static async getProductOfCategoryForShop({categoryId,shopId,query}) {
+        let allProducts = [];
+        switch (query) {
+            case 'all':
+                allProducts = await productSchema.find({ product_shop: shopId, isDraft: false,category:categoryId })
+                .populate('category','category_name');;
+                break;
+            case 'con_hang':
+                allProducts = await productSchema.find({ product_shop: shopId, isDraft: false, product_quantity: { $gt: 0 },category:categoryId })
+                .populate('category','category_name');;
+                break;
+            case 'het_hang':
+                allProducts = await productSchema.find({ product_shop: shopId, product_quantity: 0,category:categoryId })
+                .populate('category','category_name');;
+                break;
+            case 'private':
+                allProducts = await productSchema.find({ product_shop: shopId, isDraft: true,category:categoryId })
+                .populate('category','category_name');;
+                break;
+            default:
+                break;
         }
+        if (!allProducts || allProducts.length === 0) {
+            return { message: 'Shop của bạn chưa có bất kỳ sản phẩm nào' };
+        }
+        return allProducts
     }
 
     static async getProduct({ product_id }) {

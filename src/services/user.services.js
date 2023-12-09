@@ -121,5 +121,24 @@ class UserService {
             updateAddress
         }
     }
+    static getAddress = async ({userId}) =>{
+        const user = await userSchema.findOne({ _id: userId })
+        .populate({
+            path: 'information',
+            populate: {
+                path: 'address', // Use 'address' instead of 'addresses'
+                options: { strictPopulate: false }
+            }
+        })
+        .select('-password')
+        .exec();
+        if (!user.information) {
+            return 'Hãy cập nhật thông tin người dùng'
+        }
+        return user
+    }
+    static followShop = async ({userId,shopId}) =>{
+        
+    }
 }
 module.exports = UserService;

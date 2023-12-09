@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/vuhoangduc/ServerApiEcommerceFashion#readme",
   "dependencies": {
+    "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
@@ -31,6 +32,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.1",
     "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.7",
     "otp-generator": "^4.0.1",
     "redis": "^4.6.11",

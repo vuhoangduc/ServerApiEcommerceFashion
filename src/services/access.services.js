@@ -16,30 +16,32 @@ class AccessService {
         password,
         role
     }) => {
-            const otpHolder = await otpModel.find({
-                email,
-            })
-            if (!otpHolder.length){
-                throw new BadRequestError('Đã hệt hạn mã OTP!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+        const hodelEmail = await findByEmail(email)
+        if (hodelEmail) throw new BadRequestError('Email đã tồn tại!', StatusCode.FORBIDDEN, 'INVALID_EMAIL')
+        const otpHolder = await otpModel.find({
+            email,
+        })
+        if (!otpHolder.length) {
+            throw new BadRequestError('Đã hệt hạn mã OTP!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+        }
+        // get last otp
+        const lastOtp = otpHolder[otpHolder.length - 1];
+        const isValid = await validOtp({
+            otp,
+            hashOtp: lastOtp.otp
+        })
+        if (!isValid) {
+            throw new BadRequestError('OTP ko chính xác!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+        }
+        if (isValid && email === lastOtp.email) {
+            const passwordHash = await bcrypt.hash(password, 10);
+            const newUser = await createUser(email, passwordHash, role);
+            if (newUser) return {
+                message: 'Đăng ký tài khoàn thành công!!!',
+                status: 200,
+                newUser
             }
-            // get last otp
-            const lastOtp = otpHolder[otpHolder.length - 1];
-            const isValid = await validOtp({
-                otp,
-                hashOtp: lastOtp.otp
-            })
-            if (!isValid) {
-                throw new BadRequestError('OTP ko chính xác!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
-            }
-            if (isValid && email === lastOtp.email) {
-                const passwordHash = await bcrypt.hash(password, 10);
-                const newUser = await createUser(email, passwordHash, role);
-                if (newUser) return {
-                    message: 'Đăng ký tài khoàn thành công!!!',
-                    status: 200,
-                    newUser
-                }
-            }
+        }
     }
     static signUp = async ({ email, password, role }) => {
         console.log(email, password, role);
@@ -67,7 +69,8 @@ class AccessService {
         });
         const otp = await insertOtp({
             email,
-            otp: OTP});
+            otp: OTP
+        });
 
         const mailOptions = {
             from: 'ttgvhd@gmail.com',

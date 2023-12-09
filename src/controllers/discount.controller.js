@@ -32,6 +32,14 @@ class DiscountController{
             })
         }).send(res)
     }
+    getAllDiscountCodesWithProducts = async (req,res,next)=>{
+        new SuccessResponse({
+            message :'Successful Code Found',
+            metadata: await DiscountService.getAllDiscountUserOfProduct({
+                shopId:req.params.id
+            })
+        }).send(res)
+    }
 
     getDiscountAmount = async (req,res,next)=>{
         new SuccessResponse({
@@ -53,7 +61,7 @@ class DiscountController{
     getAllDiscountCodeOfShop = async (req,res,next)=>{
         new SuccessResponse({
             message :'Successful Code Found',
-            metadata: await DiscountService.getAllDiscountCodeByShop({
+            metadata: await DiscountService.getAllDiscountUserOfProduct({
                 shopId:req.params.id,
             })
         }).send(res)

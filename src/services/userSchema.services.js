@@ -47,7 +47,9 @@ const updateStatus = async (userId) => {
   const user = await userSchema.findById(userId);
   if (!user) {
       // Người dùng không tồn tại
-      throw new Error("User not found");
+      return {
+        message:'có lỗi sảy ra!!!'
+      }
   }
     // Kiểm tra trạng thái hiện tại và thay đổi
   const newStatus = user.status === "active" ? "inactive" : "active";

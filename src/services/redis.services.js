@@ -1,6 +1,7 @@
 const { reservationInventory } = require('../models/repositories/inventory.repo');
 const { BadRequestError, StatusCode } = require('../core/error.response');
 const { promisify } = require('util');
+const { reservationQuantity } = require('../models/repositories/product.repo');
 // const redisClient = require('../db/init.redis');
 // const redis = require('redis');
 // const { set, model } = require('mongoose');
@@ -16,7 +17,7 @@ const { promisify } = require('util');
 // const delAsync = promisify(client.del).bind(client);
 
 const acquirelock = async (productId, quantity,cartId,color,size) => {
-    const isReservation = await reservationInventory({
+    const isReservation = await reservationQuantity({
         productId,
         quantity,
         cartId,

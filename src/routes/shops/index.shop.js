@@ -9,4 +9,6 @@ router.put('/updateShop', upload.single('avatar'), asyneHandler(shopController.u
 router.post('/searchProducts', asyneHandler(shopController.searchProduct));
 router.get('/getShop/:id',asyneHandler(shopController.getShop))
 router.get('/getShopForShop',asyneHandler(shopController.getShopForShop))
+router.get('/overview/:year',asyneHandler(shopController.orderStatistics))
+router.get('/analysis/:q',asyneHandler(shopController.orderAnalysis))
 module.exports = router;

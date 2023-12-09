@@ -4,7 +4,7 @@ const {
     findCartId
 } = require('../models/repositories/cart.repo');
 const {
-    checkProductByServer
+    checkProductByServer, updateProductSold
 } = require('../models/repositories/product.repo');
 const { getDiscountAmount } = require('./discount.services');
 const { acquirelock } = require('./redis.services');
@@ -18,6 +18,7 @@ const { reservationInventory } = require('../models/repositories/inventory.repo'
 const { pushNotiToSystem } = require('./notification.services');
 const { converToObjectIdMongodb } = require('../util');
 const { BadRequestError, StatusCode } = require('../core/error.response');
+const {getDistance} = require('../util/apiGoogle')
 class CheckoutService {
 
     /*
@@ -57,53 +58,63 @@ class CheckoutService {
             ]
         }
     */
-    static  async checkoutReview({
-        cartId,userId,shop_order_ids,type
-    }){
-        if(type!='mua-ngay'){
-        // check cartId ton tai ko?
-        const foundCart = await findCartId(cartId)
-        if(!foundCart) return {message:'ko tim thay gio hang'};
+    static async checkoutReview({
+        cartId, userId, shop_order_ids, type
+    }) {
+        if (type != 'mua-ngay') {
+            // check cartId ton tai ko?
+            const foundCart = await findCartId(cartId)
+            if (!foundCart) return { message: 'ko tim thay gio hang' };
         }
+        
+        const origin = 'Hanoi, Vietnam';
+        const destination = 'Ho Chi Minh City, Vietnam';
+        await getDistance(origin, destination)
+            .then(distance => {
+                return `Khoảng cách giữa ${origin} và ${destination}: ${distance} mét`;
+                console.log(`Khoảng cách giữa ${origin} và ${destination}: ${distance} mét`);
+            })
+            .catch(error => {
+                console.error(error.message);
+            });
         const checkout_order = {
             totalPrice: 0,// tong tien hang
-            feeShip:0, // phi van chuyen
-            totalDiscount:0,//tong tien discount giam gia
-            totalCheckout:0,// tong thanh toan
-        },shop_order_ids_new = [];
+            feeShip: 30000, // phi van chuyen
+            totalDiscount: 0,//tong tien discount giam gia
+            totalCheckout: 0,// tong thanh toan
+        }, shop_order_ids_new = [];
         for (let i = 0; i < shop_order_ids.length; i++) {
-            const {shopId,shop_discounts = [],item_products = []} =shop_order_ids[i];
+            const { shopId, shop_discounts = [], item_products = [] } = shop_order_ids[i];
             // check product available
             const checkProductServer = await checkProductByServer(item_products);
-            console.log(checkProductServer);
-            if(!checkProductServer[0]) return {message:'oder wrong!!'};
+            if (!checkProductServer[0]) return { message: 'oder wrong!!' };
             // tong tien don hang
-            const checkoutPrice = checkProductServer.reduce((acc,product) =>{
+            const checkoutPrice = checkProductServer.reduce((acc, product) => {
                 return acc + (product.quantity * product.price)
-            },0)
+            }, 0)
             // tong tien truoc khi xu ly
             checkout_order.totalPrice += checkoutPrice
             const itemCheckout = {
                 shopId,
                 shop_discounts,
                 priceRaw: checkoutPrice,
-                priceApplyDiscount:checkoutPrice,
-                item_products:checkProductServer
+                priceApplyDiscount: checkoutPrice,
+                item_products: checkProductServer
             }
             // neu shop_discounts ton tai > 0, check xem co hop le hay khong
-            if(shop_discounts.length > 0){
+            if (shop_discounts.length > 0) {
                 // gia su chi co mot discount
                 // get amout discount
-                const {totalPrice=0,discount=0} = await getDiscountAmount({
-                    codeId : shop_discounts[0].codeId,
+                const { totalPrice = 0, discount = 0 } = await getDiscountAmount({
+                    codeId: shop_discounts[0].codeId,
                     userId,
                     shopId,
-                    products:checkProductServer
+                    products: checkProductServer
                 })
                 // tong cong discont giam gia
                 checkout_order.totalDiscount += discount
                 // neu tien giam gia lon hon ko
-                if(discount > 0){
+                if (discount > 0) {
                     itemCheckout.priceApplyDiscount = checkoutPrice - discount
                 }
             }
@@ -111,7 +122,7 @@ class CheckoutService {
             checkout_order.totalCheckout += itemCheckout.priceApplyDiscount;
             shop_order_ids_new.push(itemCheckout);
         }
-        return{
+        return {
             shop_order_ids,
             shop_order_ids_new,
             checkout_order
@@ -122,86 +133,86 @@ class CheckoutService {
         shop_order_ids,
         cartId,
         userId,
-        user_address = {City:'Hà nội'},
+        user_address = { City: 'Hà nội' },
         user_payment = {}
-    }){
+    }) {
         let newOrder = [];
-        await Promise.all(shop_order_ids.map(async(shop_order_ids)=>{
-        const {shop_order_ids_new,checkout_order} = await CheckoutService.checkoutReview({
-            cartId,
-            userId,
-            shop_order_ids:[shop_order_ids]
-        })
-        // check lai mot lan nua xem vuot ton kho hay ko?
-        const products = shop_order_ids_new.flatMap(order => order.item_products);
-        const acquireProduct = [];
-        for (let i = 0; i < products.length; i++) {
+        await Promise.all(shop_order_ids.map(async (shop_order_ids) => {
+            const { shop_order_ids_new, checkout_order } = await CheckoutService.checkoutReview({
+                cartId,
+                userId,
+                shop_order_ids: [shop_order_ids]
+            })
+            // check lai mot lan nua xem vuot ton kho hay ko?
+            const products = shop_order_ids_new.flatMap(order => order.item_products);
+            const acquireProduct = [];
+            for (let i = 0; i < products.length; i++) {
 
-            const {productId,quantity,color,size,} = products[i];
-            const keyLock = await acquirelock(productId,quantity,cartId,color,size);
-            if(keyLock == false){
-                pushNotiToSystem({
-                    type:'order-002',
-                    receivedId:1,
-                    senderId:shop_order_ids_new[0].shopId,
-                    options:{
-                        productId:productId,
-                    }
-                })
-                throw new BadRequestError('Sản phẩm đã có cập nhật mới, vui lòng kiểm tra lại có thể là số lượng ko đủ', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+                const { productId, quantity, color, size, } = products[i];
+                const keyLock = await acquirelock(productId, quantity, cartId, color, size);
+                if (keyLock == false) {
+                    pushNotiToSystem({
+                        type: 'order-002',
+                        receivedId: 2,
+                        senderId: shop_order_ids_new[0].shopId,
+                        options: {
+                            productId: productId,
+                        }
+                    })
+                    throw new BadRequestError('Sản phẩm đã có cập nhật mới, vui lòng kiểm tra lại có thể là số lượng ko đủ', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
+                }
+                // acquireProduct.push(keyLock ? true:false);
+                // if(keyLock){
+                //     await releaselock(keyLock)
+                // }
             }
-            // acquireProduct.push(keyLock ? true:false);
-            // if(keyLock){
-            //     await releaselock(keyLock)
+            // // check if co 1 san pham het hang trong kho
+            // if(keyLock == false){
+            //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
             // }
-        }
-        // // check if co 1 san pham het hang trong kho
-        // if(keyLock == false){
-        //     return {message: 'Mot so san pham da duoc cap nhat, vui long quay lai gio hang...'};
-        // }
-        newOrder = await orderV2Schema.create({
-            order_userId:userId,
-            order_checkout:checkout_order,
-            order_shipping:user_address,
-            order_payment:user_payment,
-            order_products:shop_order_ids_new,
-        })
-        // truong hop: neu insert thanh cong, thi remove product co trong cart
-        if (newOrder) {
-            for (let i = 0; i < shop_order_ids_new.length; i++) {
-            const productIdToRemove = shop_order_ids_new[i].item_products[0].productId;
-            try {
-                const result = await cartv2Schema.updateOne(
-                { "cart_userId": userId },
-                { $pull: { "cart_products": { "productId": productIdToRemove } } }
-                );
-                pushNotiToSystem({
-                    type:'order-001',
-                    receivedId:1,
-                    senderId:userId,
-                    options:{
-                        productId:productIdToRemove,
-                        orderId:newOrder._id
+            newOrder = await orderV2Schema.create({
+                order_userId: userId,
+                order_checkout: checkout_order,
+                order_shipping: user_address,
+                order_payment: user_payment,
+                order_products: shop_order_ids_new,
+            })
+            // truong hop: neu insert thanh cong, thi remove product co trong cart
+            if (newOrder) {
+                for (let i = 0; i < shop_order_ids_new.length; i++) {
+                    const productIdToRemove = shop_order_ids_new[i].item_products[0].productId;
+                    try {
+                        const result = await cartv2Schema.updateOne(
+                            { "cart_userId": userId },
+                            { $pull: { "cart_products": { "productId": productIdToRemove } } }
+                        );
+                        pushNotiToSystem({
+                            type: 'order-001',
+                            receivedId: 2,
+                            senderId: shop_order_ids_new[i].shopId,
+                            options: {
+                                productId: productIdToRemove,
+                                orderId: newOrder._id
+                            }
+                        })
+                        // Kết quả của updateOne được trả về trực tiếp
+                        console.log(`Đã xoá sản phẩm với productId ${productIdToRemove}`);
+                    } catch (error) {
+                        console.error(`Lỗi khi xoá sản phẩm từ giỏ hàng: ${error}`);
                     }
-                })
-                // Kết quả của updateOne được trả về trực tiếp
-                console.log(`Đã xoá sản phẩm với productId ${productIdToRemove}`);
-            } catch (error) {
-                console.error(`Lỗi khi xoá sản phẩm từ giỏ hàng: ${error}`);
+                }
             }
-            }
-        }
-    }))
-    return newOrder;
+        }))
+        return newOrder;
     }
     /*
         1> Query Order [User]
     */
-    static async getOrdersByUser({ userId,query }){
+    static async getOrdersByUser({ userId, query }) {
         const orderRes = {
             user: [],
         };
-        const foundOrders = await orderV2Schema.find({order_userId:userId,order_status:query}).lean();
+        const foundOrders = await orderV2Schema.find({ order_userId: userId, order_status: query }).lean();
         if (!foundOrders) return { message: 'Không có đơn hàng nào' };
         const shopOrder = [];
         const productOrder = [];
@@ -211,21 +222,21 @@ class CheckoutService {
             const findShop = await storeDetailSchema.findById(element.order_products[0].shopId);
             const findProductOder = await productSchema.findById(element.order_products[0].item_products[0].productId);
             orderRes.user.push(
-            {
-                oderId:element._id,
-                status:element.order_status,
-                name_shop: findShop.nameShop,
-                shopId:findShop._id,
-                avatar_shop:findShop.avatarShop,
-                order_shipping:element.order_shipping,
-                product_name: findProductOder.product_name,
-                product_thumb:findProductOder.product_thumb,
-                product_attributes:element.order_products[0].item_products[0],
-                order_checkout:element.order_checkout,
-                order_status:element.order_status,
-                crateDate:element.createdAt
-            }
-        )
+                {
+                    oderId: element._id,
+                    status: element.order_status,
+                    name_shop: findShop.nameShop,
+                    shopId: findShop._id,
+                    avatar_shop: findShop.avatarShop,
+                    order_shipping: element.order_shipping,
+                    product_name: findProductOder.product_name,
+                    product_thumb: findProductOder.product_thumb,
+                    product_attributes: element.order_products[0].item_products[0],
+                    order_checkout: element.order_checkout,
+                    order_status: element.order_status,
+                    crateDate: element.createdAt
+                }
+            )
         }
         return {
             orderRes
@@ -234,14 +245,14 @@ class CheckoutService {
     /*
         1> Query Order Using Id [User]
     */
-        static async getOneOrderByUser(){
-        
+    static async getOneOrderByUser() {
+
     }
     /*
         1> cancel Order [User]
     */
-    static async cancelOrderByUser({orderId,userId}){
-        const order = await orderV2Schema.findOneAndUpdate({ _id:orderId,order_userId:userId }, {
+    static async cancelOrderByUser({ orderId, userId }) {
+        const order = await orderV2Schema.findOneAndUpdate({ _id: orderId, order_userId: userId }, {
             $set: { order_status: 'cancelled' }
         }, { new: true })
         if (!order) {
@@ -254,8 +265,8 @@ class CheckoutService {
             order
         }
     }
-    static async cancelOrderByShop({orderId,shopId}){
-        const order = await orderV2Schema.findOneAndUpdate({ _id:orderId,"order_products.shopId":shopId }, {
+    static async cancelOrderByShop({ orderId, shopId }) {
+        const order = await orderV2Schema.findOneAndUpdate({ _id: orderId, "order_products.shopId": shopId }, {
             $set: { order_status: 'cancelled' }
         }, { new: true })
         if (!order) {
@@ -271,41 +282,46 @@ class CheckoutService {
     /*
         1> Update Order Status [Shop | Admin]
     */
-    static async updateOrderStatusByShop({ shopId,order_id, status }){
-        console.log({shopId,order_id, status});
-    const order = await orderV2Schema.findOneAndUpdate({ _id: order_id,"order_products.shopId":shopId }, {
-        $set: { order_status: status }
-    }, { new: true })
-    if (!order) {
+    static async updateOrderStatusByShop({ shopId, order_id, status }) {
+        console.log({ shopId, order_id, status });
+        const order = await orderV2Schema.findOneAndUpdate({ _id: order_id, "order_products.shopId": shopId }, {
+            $set: { order_status: status }
+        }, { new: true })
+        if (!order) {
+            return {
+                message: 'Thay đổi trạng thái đơn hàng thất bại'
+            }
+        }
+        if (status === 'delivered') {
+            const productId = order.order_products[0].item_products[0].productId;
+            const quantity = order.order_products[0].item_products[0].quantity;
+            await updateProductSold({ productId: productId, type: 'tang', quantity: quantity });
+        }
         return {
-            message: 'Thay đổi trạng thái đơn hàng thất bại'
+            message: 'Thay đổi trạng thái đơn hàng thành công',
+            order
         }
     }
-    return {
-        message: 'Thay đổi trạng thái đơn hàng thành công',
-        order
+    static async updateOrderStatusByUser({ userId, order_id, status }) {
+        const order = await orderV2Schema.findOneAndUpdate({ _id: order_id, order_userId: userId }, {
+            $set: { order_status: status }
+        }, { new: true })
+        if (!order) {
+            return {
+                message: 'Thay đổi trạng thái đơn hàng thất bại'
+            }
+        }
+        return {
+            message: 'Thay đổi trạng thái đơn hàng thành công',
+            order
+        }
     }
-}
-static async updateOrderStatusByUser({ userId,order_id, status }){
-const order = await orderV2Schema.findOneAndUpdate({ _id: order_id,order_userId:userId }, {
-    $set: { order_status: status }
-}, { new: true })
-if (!order) {
-    return {
-        message: 'Thay đổi trạng thái đơn hàng thất bại'
-    }
-}
-return {
-    message: 'Thay đổi trạng thái đơn hàng thành công',
-    order
-}
-}
 
-    static getOrderByIdForShop = async ({ shopId,query }) => {
+    static getOrderByIdForShop = async ({ shopId, query }) => {
         const orderRes = {
             user: [],
         };
-        const orders = await orderV2Schema.find({ "order_products.shopId": shopId,order_status:query }).lean();
+        const orders = await orderV2Schema.find({ "order_products.shopId": shopId, order_status: query }).lean();
         if (!orders || orders.length === 0) {
             return { message: 'Không có đơn hàng nào' };
         }
@@ -318,35 +334,35 @@ return {
             productOrder.push(findProductOder);
             userOrder.push(findUserOder);
             orderRes.user.push(
-            {
-                oderId:element._id,
-                status:element.order_status,
-                user_name: findUserOder.information.fullName,
-                order_shipping:element.order_shipping,
-                phoneNumber:findUserOder.information.phoneNumber,
-                product_name: findProductOder.product_name,
-                product_thumb:findProductOder.product_thumb,
-                product_attributes:element.order_products[0].item_products[0],
-                order_checkout:element.order_checkout,
-                order_status:element.order_status,
-                crateDate:element.createdAt
-            }
-        )
+                {
+                    oderId: element._id,
+                    status: element.order_status,
+                    user_name: findUserOder.information.fullName,
+                    order_shipping: element.order_shipping,
+                    phoneNumber: findUserOder.information.phoneNumber,
+                    product_name: findProductOder.product_name,
+                    product_thumb: findProductOder.product_thumb,
+                    product_attributes: element.order_products[0].item_products[0],
+                    order_checkout: element.order_checkout,
+                    order_status: element.order_status,
+                    crateDate: element.createdAt
+                }
+            )
         }
         return {
             orderRes
         }
     }
-    static returnOrder = async ({userId,orderId,note}) =>{
-        console.log({userId,orderId,note});
+    static returnOrder = async ({ userId, orderId, note }) => {
+        console.log({ userId, orderId, note });
         const foundOrders = await orderV2Schema.findById(orderId);
         pushNotiToSystem({
-            type:'order-003',
-            receivedId:2,
-            senderId:foundOrders.order_products[0].shopId,
-            options:{
-                productId:foundOrders.order_products[0].item_products[0].productId,
-                orderId:foundOrders._id,
+            type: 'order-003',
+            receivedId: 2,
+            senderId: foundOrders.order_products[0].shopId,
+            options: {
+                productId: foundOrders.order_products[0].item_products[0].productId,
+                orderId: foundOrders._id,
             },
             note
         })
@@ -354,10 +370,10 @@ return {
             throw new BadRequestError('yêu cầu trả lại hàng thất bại !!!', StatusCode.FORBIDDEN, 'INVALID_EMAIL');
         }
         return {
-            message:'Yêu cầu thành công hãy chờ xác nhận từ shop',
+            message: 'Yêu cầu thành công hãy chờ xác nhận từ shop',
         }
     }
-    
+
 }
 
 module.exports = CheckoutService

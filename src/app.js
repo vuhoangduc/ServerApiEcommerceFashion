@@ -23,7 +23,7 @@ const cors = require('cors');
 const corsOptions = {
     origin: 'http://localhost:3000',
     origin: 'http://127.0.0.1:5501',
-    origin: 'http://127.0.0.1:5501',
+    origin: 'http://127.0.0.1:5501/thi_thu/bai1/index.html',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,

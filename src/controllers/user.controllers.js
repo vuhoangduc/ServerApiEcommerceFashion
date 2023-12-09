@@ -67,5 +67,12 @@ class UserController {
             })
         }).send(res);
     }
+    getAddress = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await UserService.getAddress({
+                userId: req.user.userId,
+            })
+        }).send(res);
+    }
 }
 module.exports = new UserController;
