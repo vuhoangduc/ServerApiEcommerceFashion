@@ -299,7 +299,7 @@ class AdminService {
             }
         }, { new: true });
         const createNotification = await notificationSchema.create({
-            noti_type: 'shop-002',
+            noti_type: 'admin-001',
             noti_senderId: userId,
             noti_receiveId: shopId,
             noti_content: content

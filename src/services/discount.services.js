@@ -122,6 +122,21 @@ class DiscountService {
         })
         return discounts
     }
+    
+    static async getAllDiscountUserOfProduct({
+        shopId
+    }){
+        const discounts = await findAllDiscountCodeUnSelect({
+            filter:{
+                discount_shopId:converToObjectIdMongodb(shopId),
+                discount_is_active:true,
+            },
+            select:['__v','discount_shopId'],
+            model:discountModel
+        })
+        return discounts
+    }
+
     static async getAllDiscountCodeOfShop({
         shopId
     }){
@@ -130,7 +145,7 @@ class DiscountService {
                 discount_shopId:converToObjectIdMongodb(shopId),
                 discount_is_active:true,
             },
-            unSelect:['__v','discount_shopId'],
+            unSelect:'-discount_product_ids -discount_applies_to -discount_is_active -discount_max_uses_per_user -discount_users_used -discount_uses_count -discount_max_uses -discount_end_date -discount_start_date ',
             model:discountModel
         })
         return discounts

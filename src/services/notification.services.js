@@ -1,5 +1,6 @@
 const notificationModel = require("../models/notification.model");
-
+const { converToObjectIdMongodb } = require("../util");
+const initSocketManager = require('../util/socket_manager');
 const pushNotiToSystem = async ({
     type = 'shop-001',
     receivedId = 1,
@@ -28,6 +29,7 @@ const pushNotiToSystem = async ({
         noti_senderId:senderId,
         noti_options:options
     })
+    initSocketManager.sendNotification({userId:senderId,message:noti_content});
     return newNoti;
 }
 const listNotiByUser = async ({
@@ -57,11 +59,12 @@ const listNotiByUser = async ({
     ])
 }
 const listNotiByShop = async ({
+    shopId,
     userId=2,
     type = 'ALL',
     isRead=0
 }) =>{
-    const match = {noti_receiveId:userId}
+    const match = {noti_receiveId:userId, noti_senderId:converToObjectIdMongodb(shopId)}
     if(type !== 'ALL'){
         match['noti_type'] = type
     }

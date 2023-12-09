@@ -68,20 +68,76 @@ const checkProductByServer = async (products) =>{
     }))
 }
 const updateProductSold = async ({productId,type,quantity}) =>{
+    console.log({productId,type,quantity});
     switch (type) {
         case 'tang':
-            const tang = await ProductModel.updateOne(
+            const tang = await productSchema.updateOne(
                 { _id: converToObjectIdMongodb(productId) },
                 { $inc: { product_sold: +quantity } }
             );
             break;
         case 'giam':
-            const giam = await ProductModel.updateOne(
+            const giam = await productSchema.updateOne(
                 { _id: converToObjectIdMongodb(productId) },
                 { $inc: { product_sold: -quantity } }
             );
         break;
     }
+}
+const reservationQuantity = async ({productId,quantity,cartId,color,size})=>{
+    const availableStock = await checkAvailableStock(productId,quantity,color,size);
+    if(!availableStock) return false;
+    const query = {
+        "_id":converToObjectIdMongodb(productId),
+        "product_attributes":{
+            $elemMatch: {
+                "color": color,
+                "options": {
+                    $elemMatch: {
+                        "size": size
+                    }
+                }
+            }
+        }
+    };
+    const updateSet = {
+        $inc: {
+            "product_quantity": -quantity,
+            "product_attributes.$[attr].quantity": -quantity,
+            "product_attributes.$[attr].options.$[opt].options_quantity": -quantity
+        }
+    };
+    const options = {
+        arrayFilters: [
+            { "attr.color": color, "attr.options.size": size },
+            { "opt.size": size }
+        ],
+        upsert: true,
+        new: true
+    };
+    return await productSchema.updateOne(query,updateSet,options);
+}
+
+const checkAvailableStock = async (productId,quantity,color,size) =>{
+    const document = await productSchema.findOne({
+        "_id":converToObjectIdMongodb(productId),
+        "product_quantity":{$gte:quantity},
+        "product_attributes":{
+            $elemMatch: {
+                "color": color,
+                "options": {
+                    $elemMatch: {
+                        "size": size,
+                        "options_quantity": { $gte: quantity } // Bổ sung điều kiện này
+                    }
+                }
+            }
+        }
+    });
+    if(document === null){
+        return false;
+    }
+    return true;
 }
 module.exports ={
     findAllDraftsForShop,
@@ -90,5 +146,7 @@ module.exports ={
     unpublishProductByShop,
     getProductById,
     checkProductByServer,
-    updateProductSold
+    updateProductSold,
+    reservationQuantity,
+    checkAvailableStock
 }

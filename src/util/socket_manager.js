@@ -17,7 +17,7 @@ const initSocketManager = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log(`⚡: ${socket.id} user just connected`);
+        console.log(`⚡🖕🏿: ${socket.id} user just connected`);
         socket.on('joinRoom', (roomName) => {
             socket.join(roomName);
             console.log(`User ${socket.id} joined room: ${roomName}`);
@@ -121,14 +121,12 @@ const initSocketManager = (server) => {
         // Thêm các chức năng Socket.IO khác tại đây
     });
 };
-
-const sendNotification = (message) => {
-    console.log(message);
-    io.emit('notification', { message });
+const sendNotification = (metaData) => {
+    io.emit(`notification-${metaData.userId}`,metaData.message);
 };
 const newChat = (senderUser) => {
-    console.log(senderUser);
-    // io.emit(senderUser);
+    console.log(senderUser.userId);
+    io.emit(`newChat-${senderUser.userId}`);
 }
 const sendNewOrder = (message) => {
     console.log(message);

@@ -12,7 +12,10 @@ class NotificationController {
     listNotiByShop = async (req,res,next) =>{
         new SuccessResponse({
             message:'',
-            metadata: await listNotiByShop(req.query)
+            metadata: await listNotiByShop({
+                query:req.query,
+                shopId:req.user.userId
+            })
         }).send(res)
     }
 }

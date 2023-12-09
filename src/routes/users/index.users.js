@@ -12,4 +12,5 @@ router.get('/getProfile', asyneHandler(userController.getProfile));
 router.post('/addAddress', asyneHandler(userController.addAddress));
 router.delete('/deleteAddress', asyneHandler(userController.deleteAddress));
 router.put('/updateAddress', asyneHandler(userController.updateAddress));
+router.get('/getAddress',asyneHandler(userController.getAddress))
 module.exports = router;

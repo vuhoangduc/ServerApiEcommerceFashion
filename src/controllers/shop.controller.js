@@ -41,6 +41,22 @@ class ShopController{
             })
         }).send(res);
     }
+    orderStatistics = async(req,res,next) =>{
+        new SuccessResponse({
+            metadata: await ShopService.orderStatistics({
+                shopId: req.user.userId,
+                year:req.params.year
+            })
+        }).send(res);
+    }
+    orderAnalysis = async(req,res,next) =>{
+        new SuccessResponse({
+            metadata: await ShopService.analysis({
+                shopId: req.user.userId,
+                query:req.params.q
+            })
+        }).send(res);
+    }
 }
 
 module.exports = new ShopController;

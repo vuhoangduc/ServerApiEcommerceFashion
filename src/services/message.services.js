@@ -3,11 +3,12 @@ const conversationSchema = require('../models/conversation.model');
 const messageSchema = require('../models/message.model');
 const {findById,findByIdForShop} = require('../services/userSchema.services');
 const { converToObjectIdMongodb } = require('../util');
-const socket_manager = require('../util/socket_manager');
+
 
 class MessageService {
 
     static sendMessage = async ({ senderId, message, conversationId }) => {
+        const socket_manager = require('../util/socket_manager');
             const foundChat = await conversationSchema.findOne({ _id: conversationId });
             if (!foundChat) {
                 return { message: 'Có lỗi sảy ra' };
@@ -15,9 +16,11 @@ class MessageService {
             if(foundChat.isRead.user.id == senderId){
                 foundChat.isRead.shop.status = false;
                 foundChat.isRead.shop.countNew = foundChat.isRead.shop.countNew+=1;
+                socket_manager.newChat({userId:foundChat.isRead.shop.id});
             }else if(foundChat.isRead.shop.id == senderId){
                 foundChat.isRead.user.status = false;
                 foundChat.isRead.user.countNew = foundChat.isRead.user.countNew+=1;
+                socket_manager.newChat({userId:foundChat.isRead.user.id});
             }
             const messageChat = {
                 senderId,

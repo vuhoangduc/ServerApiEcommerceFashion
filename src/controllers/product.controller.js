@@ -105,9 +105,16 @@ class ProductController {
     getAllProductOfCategoryForShop = async (req,res,next) =>{
         new SuccessResponse({
             message: 'Lấy tất cả sản phẩm thành công',
-            metadata: await ProductService.getAllProductOfCategoryForShop({
+            metadata: req.params.id != 'not'
+            ?
+            await ProductService.getProductOfCategoryForShop({
                 categoryId:req.params.id,
-                shopId:req.params.id
+                shopId:req.user.userId,
+                query:req.params.q
+            }):
+            await ProductService.getAllProductByShop({
+                product_shop: req.user.userId,
+                query:req.params.q
             })
         })
         .send(res)
