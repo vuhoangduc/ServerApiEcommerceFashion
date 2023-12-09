@@ -10,7 +10,7 @@ router.put('/updateUser', upload.single('avatar'), asyneHandler(userController.u
 router.put('/changePassword', asyneHandler(userController.changePassword));
 router.get('/getProfile', asyneHandler(userController.getProfile));
 router.post('/addAddress', asyneHandler(userController.addAddress));
-router.delete('/deleteAddress', asyneHandler(userController.deleteAddress));
+router.put('/deleteAddress', asyneHandler(userController.deleteAddress));
 router.put('/updateAddress', asyneHandler(userController.updateAddress));
 router.get('/getAddress',asyneHandler(userController.getAddress))
 module.exports = router;
