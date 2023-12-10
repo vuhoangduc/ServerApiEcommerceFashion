@@ -1,7 +1,9 @@
-const { reservationInventory } = require('../models/repositories/inventory.repo');
-const { BadRequestError, StatusCode } = require('../core/error.response');
-const { promisify } = require('util');
-const { reservationQuantity } = require('../models/repositories/product.repo');
+const {
+  reservationInventory,
+} = require("../models/repositories/inventory.repo");
+const { BadRequestError, StatusCode } = require("../core/error.response");
+const { promisify } = require("util");
+const { reservationQuantity } = require("../models/repositories/product.repo");
 // const redisClient = require('../db/init.redis');
 // const redis = require('redis');
 // const { set, model } = require('mongoose');
@@ -11,50 +13,49 @@ const { reservationQuantity } = require('../models/repositories/product.repo');
 //     // password: 'your_password', // uncomment and set if you have a password
 // });
 
-
 // const setExAsync = promisify(client.setEx).bind(client);
 // const pexpireAsync = promisify(client.pExpire).bind(client);
 // const delAsync = promisify(client.del).bind(client);
 
-const acquirelock = async (productId, quantity,cartId,color,size) => {
-    const isReservation = await reservationQuantity({
-        productId,
-        quantity,
-        cartId,
-        color,
-        size
-    });
-    if(!isReservation){
-        return false;
-    }
-    return true;
-    // const key = `lock_v2023_${productId}`;
-    // const retryTimes = 10;
-    // const expireTime = 3000;
-    // for (let i = 0; i < retryTimes; i++) {
-    //     try {
-    //         const result = await setExAsync(key, expireTime, '1');
-    //         console.log('result:::' + result);
-    //         if (result === 'OK') {
-    //             const isReservation = await reservationInventory({
-    //                 productId,
-    //                 quantity,
-    //                 cartId
-    //             });
-    //             // Kiểm tra xem có thuộc tính modifiedCount không
-    //             if (isReservation && isReservation.modifiedCount) {
-    //                 await pexpireAsync(key, expireTime);
-    //                 return key;
-    //             }
-    //             return null;
-    //         } else {
-    //             await new Promise((resolve) => setTimeout(resolve, 50));
-    //         }
-    //     } catch (error) {
-    //         console.error('Error acquiring lock:', error);
-    //         // Xử lý lỗi và thử lại nếu cần thiết
-    //     }
-    // }
+const acquirelock = async (productId, quantity, cartId, color, size) => {
+  const isReservation = await reservationQuantity({
+    productId,
+    quantity,
+    cartId,
+    color,
+    size,
+  });
+  if (!isReservation) {
+    return false;
+  }
+  return true;
+  // const key = `lock_v2023_${productId}`;
+  // const retryTimes = 10;
+  // const expireTime = 3000;
+  // for (let i = 0; i < retryTimes; i++) {
+  //     try {
+  //         const result = await setExAsync(key, expireTime, '1');
+  //         console.log('result:::' + result);
+  //         if (result === 'OK') {
+  //             const isReservation = await reservationInventory({
+  //                 productId,
+  //                 quantity,
+  //                 cartId
+  //             });
+  //             // Kiểm tra xem có thuộc tính modifiedCount không
+  //             if (isReservation && isReservation.modifiedCount) {
+  //                 await pexpireAsync(key, expireTime);
+  //                 return key;
+  //             }
+  //             return null;
+  //         } else {
+  //             await new Promise((resolve) => setTimeout(resolve, 50));
+  //         }
+  //     } catch (error) {
+  //         console.error('Error acquiring lock:', error);
+  //         // Xử lý lỗi và thử lại nếu cần thiết
+  //     }
+  // }
 };
 
 // const releaselock = async keyLock => {
@@ -71,5 +72,5 @@ const acquirelock = async (productId, quantity,cartId,color,size) => {
 // };
 
 module.exports = {
-    acquirelock
+  acquirelock,
 };
